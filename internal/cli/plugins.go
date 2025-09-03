@@ -57,8 +57,8 @@ func newPluginListCommand() *cobra.Command {
 			
 			// Display plugins in table format
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-			fmt.Fprintln(w, "NAME\tVERSION\tDESCRIPTION\tSTATUS")
-			fmt.Fprintln(w, "----\t-------\t-----------\t------")
+			_, _ = fmt.Fprintln(w, "NAME\tVERSION\tDESCRIPTION\tSTATUS")
+			_, _ = fmt.Fprintln(w, "----\t-------\t-----------\t------")
 			
 			for _, p := range plugins {
 				status := "Loaded"
@@ -69,14 +69,14 @@ func newPluginListCommand() *cobra.Command {
 				
 				// Use metadata directly
 				metadata := p.Metadata
-				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 					metadata.Name,
 					metadata.Version,
 					metadata.Description,
 					status,
 				)
 			}
-			w.Flush()
+			_ = w.Flush()
 			
 			return nil
 		},

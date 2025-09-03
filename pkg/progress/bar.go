@@ -150,7 +150,7 @@ func (b *Bar) Finish() {
 	b.active = false
 	
 	if b.options.IsTTY && !b.options.Quiet {
-		fmt.Fprintln(b.options.Writer)
+		_, _ = fmt.Fprintln(b.options.Writer)
 	}
 }
 
@@ -160,12 +160,12 @@ func (b *Bar) Success(message string) {
 	if !b.options.Quiet {
 		duration := b.getElapsedTime()
 		if b.options.ShowElapsedTime && duration != "" {
-			fmt.Fprintf(b.options.Writer, "%s %s %s\n",
+			_, _ = fmt.Fprintf(b.options.Writer, "%s %s %s\n",
 				color.GreenString("✓"),
 				message,
 				color.HiBlackString(duration))
 		} else {
-			fmt.Fprintf(b.options.Writer, "%s %s\n",
+			_, _ = fmt.Fprintf(b.options.Writer, "%s %s\n",
 				color.GreenString("✓"),
 				message)
 		}
@@ -176,7 +176,7 @@ func (b *Bar) Success(message string) {
 func (b *Bar) Error(message string) {
 	b.Stop()
 	if !b.options.Quiet {
-		fmt.Fprintf(b.options.Writer, "%s %s\n",
+		_, _ = fmt.Fprintf(b.options.Writer, "%s %s\n",
 			color.RedString("✗"),
 			message)
 	}
@@ -186,7 +186,7 @@ func (b *Bar) Error(message string) {
 func (b *Bar) Warning(message string) {
 	b.Stop()
 	if !b.options.Quiet {
-		fmt.Fprintf(b.options.Writer, "%s %s\n",
+		_, _ = fmt.Fprintf(b.options.Writer, "%s %s\n",
 			color.YellowString("⚠"),
 			message)
 	}
@@ -204,7 +204,7 @@ func (b *Bar) Stop() {
 	b.active = false
 	if b.options.IsTTY && !b.options.Quiet {
 		b.clearLine()
-		fmt.Fprintln(b.options.Writer)
+		_, _ = fmt.Fprintln(b.options.Writer)
 	}
 }
 
@@ -261,7 +261,7 @@ func (b *Bar) render() {
 	line := "\r" + strings.Join(components, " ")
 	b.lastLine = line
 	
-	fmt.Fprint(b.options.Writer, line)
+	_, _ = fmt.Fprint(b.options.Writer, line)
 }
 
 // clearLine clears the current line

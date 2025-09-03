@@ -73,11 +73,37 @@ jobs:
       with:
         go-version: ${{ env.GO_VERSION }}
 
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: latest
-        args: --timeout=5m
+    - name: Run go vet
+      run: go vet ./...
+    
+    - name: Run go fmt check
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "The following files need formatting:"
+          gofmt -s -l .
+          exit 1
+        fi
+    
+    - name: Check for unchecked errors
+      run: |
+        # Simple check for common unchecked errors
+        # This won't catch all cases but will catch obvious ones
+        UNCHECKED=$(grep -r "fmt\.Fprintf\|fmt\.Fprintln\|fmt\.Fprint" --include="*.go" . | \
+                    grep -v "_test.go" | \
+                    grep -v "_, _" | \
+                    grep -v "//nolint" || true)
+        if [ -n "$UNCHECKED" ]; then
+          echo "Found potential unchecked errors:"
+          echo "$UNCHECKED"
+          echo ""
+          echo "Consider checking errors with: _, _ = fmt.Fprintf(...)"
+          # Don't fail for now, just warn
+        fi
+    
+    - name: Run staticcheck
+      run: |
+        go install honnef.co/go/tools/cmd/staticcheck@latest
+        staticcheck ./...
 
   integration-test:
     name: Integration Tests

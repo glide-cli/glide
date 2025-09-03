@@ -182,21 +182,21 @@ func (m *Multi) render() {
 	// Move cursor to start position
 	if m.lines > 0 {
 		// Move up to the first line
-		fmt.Fprintf(m.writer, "\033[%dA", m.lines)
+		_, _ = fmt.Fprintf(m.writer, "\033[%dA", m.lines)
 	}
 	
 	// Render each item
 	for i, item := range m.items {
 		// Clear line
-		fmt.Fprintf(m.writer, "\r\033[K")
+		_, _ = fmt.Fprintf(m.writer, "\r\033[K")
 		
 		// Render item
 		line := m.renderItem(item)
-		fmt.Fprint(m.writer, line)
+		_, _ = fmt.Fprint(m.writer, line)
 		
 		// Move to next line (except for last item)
 		if i < len(m.items)-1 {
-			fmt.Fprintln(m.writer)
+			_, _ = fmt.Fprintln(m.writer)
 		}
 	}
 	
@@ -303,20 +303,20 @@ func (m *Multi) renderBar(b *Bar) string {
 func (m *Multi) clearAll() {
 	// Move to start
 	if m.lines > 0 {
-		fmt.Fprintf(m.writer, "\033[%dA", m.lines)
+		_, _ = fmt.Fprintf(m.writer, "\033[%dA", m.lines)
 	}
 	
 	// Clear each line
 	for i := 0; i <= m.lines; i++ {
-		fmt.Fprintf(m.writer, "\r\033[K")
+		_, _ = fmt.Fprintf(m.writer, "\r\033[K")
 		if i < m.lines {
-			fmt.Fprintln(m.writer)
+			_, _ = fmt.Fprintln(m.writer)
 		}
 	}
 	
 	// Move back to start
 	if m.lines > 0 {
-		fmt.Fprintf(m.writer, "\033[%dA", m.lines)
+		_, _ = fmt.Fprintf(m.writer, "\033[%dA", m.lines)
 	}
 }
 
@@ -328,11 +328,11 @@ func (m *Multi) Complete() {
 		// Show completion messages for each item
 		for _, item := range m.items {
 			if item.typ == "spinner" {
-				fmt.Fprintf(m.writer, "%s %s\n",
+				_, _ = fmt.Fprintf(m.writer, "%s %s\n",
 					color.GreenString("✓"),
 					item.spinner.message)
 			} else if item.typ == "bar" {
-				fmt.Fprintf(m.writer, "%s %s (%d/%d)\n",
+				_, _ = fmt.Fprintf(m.writer, "%s %s (%d/%d)\n",
 					color.GreenString("✓"),
 					item.bar.message,
 					item.bar.current,

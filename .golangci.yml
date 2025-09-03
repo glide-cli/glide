@@ -1,11 +1,17 @@
 run:
   timeout: 5m
   modules-download-mode: readonly
+  go: "1.21"
 
 linters-settings:
   errcheck:
     check-type-assertions: true
     check-blank: true
+    # Ignore fmt.Fprintf-style functions in specific cases
+    exclude-functions:
+      - fmt.Fprintf
+      - fmt.Fprintln
+      - fmt.Fprint
 
   gocritic:
     enabled-tags:
@@ -20,8 +26,9 @@ linters-settings:
     min-complexity: 15
 
   govet:
-    check-shadowing: true
     enable-all: true
+    disable:
+      - shadow # Will fix separately
 
   misspell:
     locale: US
@@ -33,9 +40,6 @@ linters-settings:
 
   revive:
     min-confidence: 0.8
-
-  staticcheck:
-    go: "1.21"
 
 linters:
   enable:

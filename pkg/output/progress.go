@@ -64,11 +64,11 @@ func (s *Spinner) Start() {
 			select {
 			case <-s.stop:
 				// Clear the spinner line
-				fmt.Fprintf(s.writer, "\r%s\r", strings.Repeat(" ", len(s.frames[i])+len(s.message)+2))
+				_, _ = fmt.Fprintf(s.writer, "\r%s\r", strings.Repeat(" ", len(s.frames[i])+len(s.message)+2))
 				return
 			case <-ticker.C:
 				frame := s.frames[i%len(s.frames)]
-				fmt.Fprintf(s.writer, "\r%s %s", InfoText("%s", frame), s.message)
+				_, _ = fmt.Fprintf(s.writer, "\r%s %s", InfoText("%s", frame), s.message)
 				i++
 			}
 		}
@@ -170,11 +170,11 @@ func (p *ProgressBar) draw() {
 		p.total,
 	)
 	
-	fmt.Fprint(p.writer, output)
+	_, _ = fmt.Fprint(p.writer, output)
 	
 	// Add newline when complete
 	if p.current >= p.total {
-		fmt.Fprintln(p.writer)
+		_, _ = fmt.Fprintln(p.writer)
 	}
 }
 
@@ -184,7 +184,7 @@ func (p *ProgressBar) Clear() {
 	defer p.mu.Unlock()
 	
 	// Clear the line
-	fmt.Fprintf(p.writer, "\r%s\r", strings.Repeat(" ", p.width+len(p.message)+20))
+	_, _ = fmt.Fprintf(p.writer, "\r%s\r", strings.Repeat(" ", p.width+len(p.message)+20))
 }
 
 // Finish completes the progress bar
@@ -231,7 +231,7 @@ func (p *IndeterminateProgress) Start() {
 			select {
 			case <-p.stop:
 				// Clear the progress line
-				fmt.Fprintf(p.writer, "\r%s\r", strings.Repeat(" ", width+len(p.message)+10))
+				_, _ = fmt.Fprintf(p.writer, "\r%s\r", strings.Repeat(" ", width+len(p.message)+10))
 				return
 			case <-ticker.C:
 				// Build the progress indicator
@@ -248,7 +248,7 @@ func (p *IndeterminateProgress) Start() {
 				
 				bar.WriteString("]")
 				
-				fmt.Fprintf(p.writer, "\r%s %s", p.message, bar.String())
+				_, _ = fmt.Fprintf(p.writer, "\r%s %s", p.message, bar.String())
 				
 				// Update position
 				position += direction
