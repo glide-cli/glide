@@ -18,19 +18,19 @@ func startWithPTY(cmd *exec.Cmd) (*os.File, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create stdin pipe: %w", err)
 	}
-	
+
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	if err := cmd.Start(); err != nil {
 		return nil, fmt.Errorf("failed to start command: %w", err)
 	}
-	
+
 	// Return stdin as a file handle (not a true PTY)
 	if f, ok := stdin.(*os.File); ok {
 		return f, nil
 	}
-	
+
 	// If stdin is not an *os.File, we need to handle it differently
 	// This is a limitation on Windows
 	return nil, fmt.Errorf("windows does not support full PTY functionality")

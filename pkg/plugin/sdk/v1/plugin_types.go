@@ -3,7 +3,8 @@ package v1
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/go-plugin"
+
+	plugin "github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 )
 

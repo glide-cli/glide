@@ -142,7 +142,7 @@ func (s *LocalInteractiveSession) RunInteractiveLoop() error {
 				// Log error but don't fail the session
 				continue
 			}
-			
+
 			switch sig {
 			case syscall.SIGINT:
 				s.Send(&StreamMessage{

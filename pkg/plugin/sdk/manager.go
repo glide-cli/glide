@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/go-plugin"
+	plugin "github.com/hashicorp/go-plugin"
 	v1 "github.com/ivannovak/glide/pkg/plugin/sdk/v1"
 )
 
