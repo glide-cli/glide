@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
+	// "os"
+	// "path/filepath"
 	"strings"
 	"time"
 
@@ -387,14 +387,14 @@ func (c *ComposerCommand) startDocker() error {
 }
 
 // checkComposerCache checks if composer cache is properly configured
-func (c *ComposerCommand) checkComposerCache() {
-	// Check if composer cache volume is mounted
-	cacheDir := filepath.Join(c.ctx.ProjectRoot, ".composer-cache")
-	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
-		// Cache directory doesn't exist, composer will use container's cache
-		// This is fine but might be slower for repeated operations
-		if c.cfg != nil && c.cfg.Defaults.Test.Verbose {
-			output.Warning("Tip: Consider adding a composer cache volume for better performance")
-		}
-	}
-}
+// func (c *ComposerCommand) checkComposerCache() {
+// 	// Check if composer cache volume is mounted
+// 	cacheDir := filepath.Join(c.ctx.ProjectRoot, ".composer-cache")
+// 	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
+// 		// Cache directory doesn't exist, composer will use container's cache
+// 		// This is fine but might be slower for repeated operations
+// 		if c.cfg != nil && c.cfg.Defaults.Test.Verbose {
+// 			output.Warning("Tip: Consider adding a composer cache volume for better performance")
+// 		}
+// 	}
+// }

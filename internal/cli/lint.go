@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
+	// "strings"
 
 	"github.com/ivannovak/glide/internal/config"
 	"github.com/ivannovak/glide/internal/context"
@@ -365,40 +365,40 @@ func (c *LintCommand) startDocker() error {
 }
 
 // getConfigFile finds the PHP CS Fixer config file
-func (c *LintCommand) getConfigFile() string {
-	// Check for config files in order of preference
-	configFiles := []string{
-		".php-cs-fixer.php",
-		".php-cs-fixer.dist.php",
-		".php_cs",
-		".php_cs.dist",
-	}
-
-	for _, file := range configFiles {
-		path := filepath.Join(c.ctx.ProjectRoot, file)
-		if fileExists(path) {
-			return file
-		}
-	}
-
-	return ""
-}
+// func (c *LintCommand) getConfigFile() string {
+// 	// Check for config files in order of preference
+// 	configFiles := []string{
+// 		".php-cs-fixer.php",
+// 		".php-cs-fixer.dist.php",
+// 		".php_cs",
+// 		".php_cs.dist",
+// 	}
+// 
+// 	for _, file := range configFiles {
+// 		path := filepath.Join(c.ctx.ProjectRoot, file)
+// 		if fileExists(path) {
+// 			return file
+// 		}
+// 	}
+// 
+// 	return ""
+// }
 
 // fileExists checks if a file exists
-func fileExists(path string) bool {
-	// This would normally use os.Stat
-	// For now, return false
-	return false
-}
+// func fileExists(path string) bool {
+// 	// This would normally use os.Stat
+// 	// For now, return false
+// 	return false
+// }
 
 // showFixSuggestion shows how to fix issues
-func (c *LintCommand) showFixSuggestion(paths []string) {
-	output.Println("\nTo automatically fix these issues, run:")
-
-	cmd := "glid lint --fix"
-	if len(paths) > 0 {
-		cmd += " " + strings.Join(paths, " ")
-	}
-
-	output.Info("  %s", cmd)
-}
+// func (c *LintCommand) showFixSuggestion(paths []string) {
+// 	output.Println("\nTo automatically fix these issues, run:")
+// 
+// 	cmd := "glid lint --fix"
+// 	if len(paths) > 0 {
+// 		cmd += " " + strings.Join(paths, " ")
+// 	}
+// 
+// 	output.Info("  %s", cmd)
+// }

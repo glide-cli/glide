@@ -287,32 +287,32 @@ func (cm *CompletionManager) canCreateDir(dir string) bool {
 }
 
 // setupCompletions configures completion functions for cobra commands
-func (cm *CompletionManager) setupCompletions(rootCmd *cobra.Command) {
-	// Add completion for format flag
-	rootCmd.RegisterFlagCompletionFunc("format", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return []string{"table", "json", "yaml", "plain"}, cobra.ShellCompDirectiveNoFileComp
-	})
-
-	// Add completion for container services (for logs, shell commands)
-	containerCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return cm.getContainerCompletions(), cobra.ShellCompDirectiveNoFileComp
-	}
-
-	// Add completion for git branches (for worktree command)
-	branchCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return cm.getBranchCompletions(), cobra.ShellCompDirectiveNoFileComp
-	}
-
-	// Add completion for configuration keys
-	configKeyCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return cm.getConfigKeyCompletions(), cobra.ShellCompDirectiveNoFileComp
-	}
-
-	// We'll register these with specific commands when they're created
-	_ = containerCompletion
-	_ = branchCompletion
-	_ = configKeyCompletion
-}
+// func (cm *CompletionManager) setupCompletions(rootCmd *cobra.Command) {
+// 	// Add completion for format flag
+// 	rootCmd.RegisterFlagCompletionFunc("format", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+// 		return []string{"table", "json", "yaml", "plain"}, cobra.ShellCompDirectiveNoFileComp
+// 	})
+// 
+// 	// Add completion for container services (for logs, shell commands)
+// 	containerCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+// 		return cm.getContainerCompletions(), cobra.ShellCompDirectiveNoFileComp
+// 	}
+// 
+// 	// Add completion for git branches (for worktree command)
+// 	branchCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+// 		return cm.getBranchCompletions(), cobra.ShellCompDirectiveNoFileComp
+// 	}
+// 
+// 	// Add completion for configuration keys
+// 	configKeyCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+// 		return cm.getConfigKeyCompletions(), cobra.ShellCompDirectiveNoFileComp
+// 	}
+// 
+// 	// We'll register these with specific commands when they're created
+// 	_ = containerCompletion
+// 	_ = branchCompletion
+// 	_ = configKeyCompletion
+// }
 
 // getContainerCompletions returns available Docker containers/services
 func (cm *CompletionManager) getContainerCompletions() []string {

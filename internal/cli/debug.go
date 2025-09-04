@@ -46,41 +46,41 @@ func showContext(cmd *cobra.Command, app *app.Application) {
 }
 
 // showConfig displays the current configuration
-func showConfig(cmd *cobra.Command, app *app.Application) {
-	output := app.OutputManager
-	cfg := app.Config
-
-	if cfg == nil {
-		output.Info("No configuration loaded")
-		return
-	}
-
-	output.Info("=== Configuration ===")
-	output.Info("Default Project: %s", cfg.DefaultProject)
-
-	if len(cfg.Projects) > 0 {
-		output.Info("")
-		output.Info("=== Projects ===")
-		for name, project := range cfg.Projects {
-			output.Info("%s:", name)
-			output.Info("  Path: %s", project.Path)
-			output.Info("  Mode: %s", project.Mode)
-		}
-	}
-
-	output.Info("")
-	output.Info("=== Defaults ===")
-	output.Info("Test:")
-	output.Info("  Parallel: %v", cfg.Defaults.Test.Parallel)
-	output.Info("  Processes: %d", cfg.Defaults.Test.Processes)
-	output.Info("  Coverage: %v", cfg.Defaults.Test.Coverage)
-	output.Info("  Verbose: %v", cfg.Defaults.Test.Verbose)
-
-	output.Info("Docker:")
-	output.Info("  Compose Timeout: %d", cfg.Defaults.Docker.ComposeTimeout)
-	output.Info("  Auto Start: %v", cfg.Defaults.Docker.AutoStart)
-	output.Info("  Remove Orphans: %v", cfg.Defaults.Docker.RemoveOrphans)
-}
+// func showConfig(cmd *cobra.Command, app *app.Application) {
+// 	output := app.OutputManager
+// 	cfg := app.Config
+// 
+// 	if cfg == nil {
+// 		output.Info("No configuration loaded")
+// 		return
+// 	}
+// 
+// 	output.Info("=== Configuration ===")
+// 	output.Info("Default Project: %s", cfg.DefaultProject)
+// 
+// 	if len(cfg.Projects) > 0 {
+// 		output.Info("")
+// 		output.Info("=== Projects ===")
+// 		for name, project := range cfg.Projects {
+// 			output.Info("%s:", name)
+// 			output.Info("  Path: %s", project.Path)
+// 			output.Info("  Mode: %s", project.Mode)
+// 		}
+// 	}
+// 
+// 	output.Info("")
+// 	output.Info("=== Defaults ===")
+// 	output.Info("Test:")
+// 	output.Info("  Parallel: %v", cfg.Defaults.Test.Parallel)
+// 	output.Info("  Processes: %d", cfg.Defaults.Test.Processes)
+// 	output.Info("  Coverage: %v", cfg.Defaults.Test.Coverage)
+// 	output.Info("  Verbose: %v", cfg.Defaults.Test.Verbose)
+// 
+// 	output.Info("Docker:")
+// 	output.Info("  Compose Timeout: %d", cfg.Defaults.Docker.ComposeTimeout)
+// 	output.Info("  Auto Start: %v", cfg.Defaults.Docker.AutoStart)
+// 	output.Info("  Remove Orphans: %v", cfg.Defaults.Docker.RemoveOrphans)
+// }
 
 // testShell tests shell execution capabilities
 func testShell(cmd *cobra.Command, args []string, app *app.Application) {

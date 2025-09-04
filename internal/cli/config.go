@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
+	// "reflect"
 	"strconv"
 	"strings"
 
@@ -726,21 +726,21 @@ func (cc *ConfigCommand) save() error {
 }
 
 // validateValue validates a configuration value based on its type
-func validateValue(v reflect.Value, value string) error {
-	switch v.Kind() {
-	case reflect.Bool:
-		_, err := strconv.ParseBool(value)
-		return err
-	case reflect.Int, reflect.Int32, reflect.Int64:
-		_, err := strconv.Atoi(value)
-		return err
-	case reflect.String:
-		return nil
-	default:
-		return glideErrors.NewConfigError(fmt.Sprintf("unsupported type: %v", v.Kind()),
-			glideErrors.WithSuggestions(
-				"This configuration field type is not supported for validation",
-				"Report this as a bug if you encounter this error",
-			))
-	}
-}
+// func validateValue(v reflect.Value, value string) error {
+// 	switch v.Kind() {
+// 	case reflect.Bool:
+// 		_, err := strconv.ParseBool(value)
+// 		return err
+// 	case reflect.Int, reflect.Int32, reflect.Int64:
+// 		_, err := strconv.Atoi(value)
+// 		return err
+// 	case reflect.String:
+// 		return nil
+// 	default:
+// 		return glideErrors.NewConfigError(fmt.Sprintf("unsupported type: %v", v.Kind()),
+// 			glideErrors.WithSuggestions(
+// 				"This configuration field type is not supported for validation",
+// 				"Report this as a bug if you encounter this error",
+// 			))
+// 	}
+// }

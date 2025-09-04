@@ -219,50 +219,51 @@ func TestContainerManager_New(t *testing.T) {
 }
 
 // Mock implementations for testing
-type mockShellExecutor struct{}
-
-func (m *mockShellExecutor) Execute(cmd interface{}) (interface{}, error) {
-	return nil, nil
-}
-
-func (m *mockShellExecutor) ExecuteWithTimeout(cmd interface{}, timeout interface{}) (interface{}, error) {
-	return nil, nil
-}
-
-func (m *mockShellExecutor) ExecuteWithProgress(cmd interface{}, message string) error {
-	return nil
-}
-
-type mockOutputManager struct{}
-
-func (m *mockOutputManager) Display(data interface{}) error {
-	return nil
-}
-
-func (m *mockOutputManager) Info(format string, args ...interface{}) error {
-	return nil
-}
-
-func (m *mockOutputManager) Success(format string, args ...interface{}) error {
-	return nil
-}
-
-func (m *mockOutputManager) Error(format string, args ...interface{}) error {
-	return nil
-}
-
-func (m *mockOutputManager) Warning(format string, args ...interface{}) error {
-	return nil
-}
-
-func (m *mockOutputManager) Raw(text string) error {
-	return nil
-}
-
-func (m *mockOutputManager) Printf(format string, args ...interface{}) error {
-	return nil
-}
-
-func (m *mockOutputManager) Println(args ...interface{}) error {
-	return nil
-}
+// Commented out as they're not currently used in tests
+// type mockShellExecutor struct{}
+//
+// func (m *mockShellExecutor) Execute(cmd interface{}) (interface{}, error) {
+// 	return nil, nil
+// }
+//
+// func (m *mockShellExecutor) ExecuteWithTimeout(cmd interface{}, timeout interface{}) (interface{}, error) {
+// 	return nil, nil
+// }
+//
+// func (m *mockShellExecutor) ExecuteWithProgress(cmd interface{}, message string) error {
+// 	return nil
+// }
+//
+// type mockOutputManager struct{}
+//
+// func (m *mockOutputManager) Display(data interface{}) error {
+// 	return nil
+// }
+//
+// func (m *mockOutputManager) Info(format string, args ...interface{}) error {
+// 	return nil
+// }
+//
+// func (m *mockOutputManager) Success(format string, args ...interface{}) error {
+// 	return nil
+// }
+//
+// func (m *mockOutputManager) Error(format string, args ...interface{}) error {
+// 	return nil
+// }
+//
+// func (m *mockOutputManager) Warning(format string, args ...interface{}) error {
+// 	return nil
+// }
+//
+// func (m *mockOutputManager) Raw(text string) error {
+// 	return nil
+// }
+//
+// func (m *mockOutputManager) Printf(format string, args ...interface{}) error {
+// 	return nil
+// }
+//
+// func (m *mockOutputManager) Println(args ...interface{}) error {
+// 	return nil
+// }
