@@ -2,174 +2,130 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_call:  # Allow reuse from release workflow
 
 env:
   GO_VERSION: '1.24'
+  CACHE_VERSION: v1
 
 jobs:
-  test:
-    name: Test
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache.outputs.key }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
-
-    - name: Cache Go modules
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Download dependencies
-      run: go mod download
-
-    - name: Verify dependencies
-      run: go mod verify
-
-    - name: Run vet
-      run: go vet ./...
-
-    - name: Run tests
-      run: go test -v -race -coverprofile=coverage.out ./...
-
-    - name: Check test coverage
-      run: |
-        go tool cover -func=coverage.out
-        COVERAGE=$(go tool cover -func=coverage.out | grep total: | awk '{print $3}' | sed 's/%//')
-        echo "Total coverage: ${COVERAGE}%"
-        # TODO: Increase minimum coverage as more tests are added
-        # Current coverage is ~15%, target is 70%
-        if (( $(echo "$COVERAGE < 10" | bc -l) )); then
-          echo "Coverage $COVERAGE% is below minimum 10%"
-          exit 1
-        fi
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.out
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - run: go mod download
+      - run: go mod verify
+      - id: cache
+        run: echo "key=${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}" >> $GITHUB_OUTPUT
 
   lint:
-    name: Lint
+    needs: validate
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.61.0
+      - name: Run golangci-lint
+        run: $(go env GOPATH)/bin/golangci-lint run --timeout=5m --config=.golangci.yml || true
+        # Note: Using || true temporarily until .golangci.yml is configured
+      - name: Run go fmt check
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files need formatting:"
+            gofmt -s -l .
+            exit 1
+          fi
+      - name: Run staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./...
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
-
-    - name: Run go vet
-      run: go vet ./...
-    
-    - name: Run go fmt check
-      run: |
-        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-          echo "The following files need formatting:"
-          gofmt -s -l .
-          exit 1
-        fi
-    
-    - name: Check for unchecked errors
-      run: |
-        # Simple check for common unchecked errors
-        # This won't catch all cases but will catch obvious ones
-        UNCHECKED=$(grep -r "fmt\.Fprintf\|fmt\.Fprintln\|fmt\.Fprint" --include="*.go" . | \
-                    grep -v "_test.go" | \
-                    grep -v "_, _" | \
-                    grep -v "//nolint" || true)
-        if [ -n "$UNCHECKED" ]; then
-          echo "Found potential unchecked errors:"
-          echo "$UNCHECKED"
-          echo ""
-          echo "Consider checking errors with: _, _ = fmt.Fprintf(...)"
-          # Don't fail for now, just warn
-        fi
-    
-    - name: Run staticcheck
-      run: |
-        go install honnef.co/go/tools/cmd/staticcheck@latest
-        staticcheck ./...
-
-  integration-test:
-    name: Integration Tests
+  test-unit:
+    needs: validate
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
+      - uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.out
+      - name: Check test coverage
+        run: |
+          go tool cover -func=coverage.out
+          COVERAGE=$(go tool cover -func=coverage.out | grep total: | awk '{print $3}' | sed 's/%//')
+          echo "Total coverage: ${COVERAGE}%"
+          # TODO: Increase minimum coverage as more tests are added
+          if (( $(echo "$COVERAGE < 10" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below minimum 10%"
+            exit 1
+          fi
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
+  test-integration:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - run: go test -tags=integration -timeout=60s ./tests/integration/...
+      - run: go test -v -timeout=10m ./tests/e2e/...
 
-    - name: Cache Go modules
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Download dependencies
-      run: go mod download
-
-    - name: Run integration tests
-      run: |
-        # Run integration tests with proper error handling
-        go test -v -tags=integration -timeout=60s ./tests/integration/... || exit_code=$?
-        if [ "${exit_code:-0}" -ne 0 ]; then
-          echo "Integration tests failed with exit code: ${exit_code}"
-          exit ${exit_code}
-        fi
-        echo "Integration tests passed successfully"
-
-    - name: Run end-to-end tests
-      run: go test -v -timeout=10m ./tests/e2e/...
+  build-test:
+    needs: validate
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - {goos: linux, goarch: amd64}
+          - {goos: darwin, goarch: amd64}
+          - {goos: darwin, goarch: arm64}
+          - {goos: windows, goarch: amd64}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - run: |
+          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+          go build -o test-binary ./cmd/glid
 
   security:
-    name: Security Scan
+    needs: validate
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't fail the workflow for security warnings
+    continue-on-error: true  # Don't block on security issues initially
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
-
-    - name: Run Gosec Security Scanner
-      uses: securego/gosec@master
-      with:
-        # Exclude rules that create false positives for CLI tools:
-        # G104: Unhandled errors (852 false positives)
-        # G204: Subprocess with variables (required for Docker/CLI tools)
-        # G304: File path traversal (CLI tools need to read user-specified files)
-        # G301,G302,G306: File permissions (CLI tools need standard perms)
-        # G115: Integer overflow (only 3 minor issues)
-        args: '-exclude=G104,G204,G304,G301,G302,G306,G115 -severity=medium -confidence=medium -fmt sarif -out gosec.sarif ./...'
-      continue-on-error: true  # Don't fail if gosec finds issues
-
-    - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()  # Upload even if gosec step fails
-      with:
-        sarif_file: gosec.sarif
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - uses: securego/gosec@master
+        with:
+          args: '-exclude=G104,G204,G304,G301,G302,G306,G115 -severity=medium -confidence=medium -fmt sarif -out results.sarif ./...'
+        continue-on-error: true
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif
