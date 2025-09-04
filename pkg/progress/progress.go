@@ -188,7 +188,7 @@ func WithElapsedTime(message string, operation func() error) error {
 // 		time.Sleep(2 * time.Second)
 // 		return nil
 // 	})
-// 
+//
 // 	// Progress bar for items
 // 	items := []string{"file1.txt", "file2.txt", "file3.txt"}
 // 	_ = ShowProgress(len(items), "Processing files", func(i int) error {
@@ -196,7 +196,7 @@ func WithElapsedTime(message string, operation func() error) error {
 // 		time.Sleep(500 * time.Millisecond)
 // 		return nil
 // 	})
-// 
+//
 // 	// Multiple operations with progress
 // 	ops := []Operation{
 // 		NewOperation("Download dependencies", func() error {
@@ -213,7 +213,7 @@ func WithElapsedTime(message string, operation func() error) error {
 // 		}),
 // 	}
 // 	_ = RunWithProgress(ops)
-// 
+//
 // 	// Concurrent operations
 // 	_ = Concurrent(ops)
 // }

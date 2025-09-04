@@ -275,12 +275,12 @@ func TestCommand_UseStrategy(t *testing.T) {
 // 	old := os.Stdout
 // 	r, w, _ := os.Pipe()
 // 	os.Stdout = w
-// 
+//
 // 	f()
-// 
+//
 // 	w.Close()
 // 	os.Stdout = old
-// 
+//
 // 	out, _ := io.ReadAll(r)
 // 	return string(out)
 // }
