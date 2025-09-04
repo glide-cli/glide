@@ -20,8 +20,8 @@ vendor/
 # Build output
 dist/
 build/
-glid
-glide
+/glid
+/glide
 
 # IDE files
 .idea/

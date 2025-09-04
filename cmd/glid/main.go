@@ -1,0 +1,155 @@
+package main
+
+import (
+	"fmt"
+	"os"
+
+	cliPkg "github.com/ivannovak/glide/internal/cli"
+	"github.com/ivannovak/glide/internal/config"
+	"github.com/ivannovak/glide/internal/context"
+	"github.com/ivannovak/glide/pkg/app"
+	"github.com/ivannovak/glide/pkg/branding"
+	glideErrors "github.com/ivannovak/glide/pkg/errors"
+	"github.com/ivannovak/glide/pkg/output"
+	"github.com/ivannovak/glide/pkg/plugin"
+	"github.com/ivannovak/glide/pkg/version"
+	"github.com/spf13/cobra"
+)
+
+var (
+	// CLI flags
+	cfgFile string
+
+	// Global output flags
+	outputFormat string
+	quietMode    bool
+	noColor      bool
+)
+
+func main() {
+	if err := Execute(); err != nil {
+		// Use the new error handler for consistent error display
+		os.Exit(glideErrors.Print(err))
+	}
+}
+
+func Execute() error {
+	// Version information is set via ldflags at build time directly in the version package
+
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Detect project context
+	ctx := context.Detect()
+
+	// Create application with dependencies
+	application := app.NewApplication(
+		app.WithProjectContext(ctx),
+		app.WithConfig(cfg),
+		app.WithOutputFormat(output.FormatTable, false, false), // Use defaults, will be overridden by flags
+	)
+
+	// Set global manager for backward compatibility during migration
+	output.SetGlobalManager(application.OutputManager)
+
+	// Create root command
+	rootCmd := &cobra.Command{
+		Use:           branding.CommandName,
+		Short:         branding.GetShortDescription(),
+		Long:          branding.GetFullDescription(),
+		Version:       version.Get(),
+		SilenceErrors: true, // We handle errors ourselves
+		SilenceUsage:  true, // Don't show usage on error
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Parse output format
+			format, err := output.ParseFormat(outputFormat)
+			if err != nil {
+				return fmt.Errorf("invalid output format: %w", err)
+			}
+
+			// Check environment variables if flags not set
+			if !cmd.Flags().Changed("no-color") && os.Getenv("NO_COLOR") != "" {
+				noColor = true
+			}
+
+			// Update the output manager with the command-line flags
+			if application != nil && application.OutputManager != nil {
+				application.OutputManager.SetFormat(format)
+				application.OutputManager.SetQuiet(quietMode)
+				application.OutputManager.SetNoColor(noColor)
+			}
+
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
+
+			// This shouldn't be reached for valid commands, but provides fallback
+			return cliPkg.ShowUnknownCommandError(args[0], ctx, cfg)
+		},
+	}
+
+	// Global flags
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default is $HOME/%s)", branding.ConfigFileName))
+	rootCmd.PersistentFlags().StringVar(&outputFormat, "format", "table", "Output format (table, json, yaml, plain)")
+	rootCmd.PersistentFlags().BoolVarP(&quietMode, "quiet", "q", false, "Suppress non-error output")
+	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
+
+	// Initialize CLI with application
+	cli := cliPkg.New(application)
+
+	// Add setup and config commands directly to root (always available)
+	rootCmd.AddCommand(cli.NewSetupCommand())
+	rootCmd.AddCommand(cli.NewConfigCommand())
+
+	// Add commands based on development mode
+	if ctx.DevelopmentMode == context.ModeMultiWorktree {
+		// Add global command group
+		globalCmd := cli.NewGlobalCommand()
+		rootCmd.AddCommand(globalCmd)
+	}
+
+	// Add local commands
+	cli.AddLocalCommands(rootCmd)
+
+	// Add plugin management command
+	rootCmd.AddCommand(cliPkg.NewPluginsCommand())
+
+	// Load plugins
+	// Plugin configuration will come from config file in future phases
+	pluginConfig := make(map[string]interface{})
+	if cfg != nil && cfg.Plugins != nil {
+		pluginConfig = cfg.Plugins
+	}
+	plugin.SetConfig(pluginConfig)
+
+	// Load all registered build-time plugins
+	if err := plugin.LoadAll(rootCmd); err != nil {
+		// Log plugin load errors but don't fail the CLI
+		if !quietMode {
+			_, _ = fmt.Fprintf(os.Stderr, "Warning: failed to load build-time plugins: %v\n", err)
+		}
+	}
+
+	// Load runtime plugins
+	if err := plugin.LoadAllRuntimePlugins(rootCmd); err != nil {
+		// Log runtime plugin load errors but don't fail the CLI
+		if !quietMode {
+			_, _ = fmt.Fprintf(os.Stderr, "Warning: failed to load runtime plugins: %v\n", err)
+		}
+	}
+
+	// Register completions for all commands
+	cli.RegisterCompletions(rootCmd)
+
+	// Enable command suggestions for typos
+	rootCmd.SuggestionsMinimumDistance = 1
+
+	// Execute root command
+	return rootCmd.Execute()
+}
