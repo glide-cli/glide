@@ -373,14 +373,14 @@ func (c *LintCommand) startDocker() error {
 // 		".php_cs",
 // 		".php_cs.dist",
 // 	}
-// 
+//
 // 	for _, file := range configFiles {
 // 		path := filepath.Join(c.ctx.ProjectRoot, file)
 // 		if fileExists(path) {
 // 			return file
 // 		}
 // 	}
-// 
+//
 // 	return ""
 // }
 
@@ -394,11 +394,11 @@ func (c *LintCommand) startDocker() error {
 // showFixSuggestion shows how to fix issues
 // func (c *LintCommand) showFixSuggestion(paths []string) {
 // 	output.Println("\nTo automatically fix these issues, run:")
-// 
+//
 // 	cmd := "glid lint --fix"
 // 	if len(paths) > 0 {
 // 		cmd += " " + strings.Join(paths, " ")
 // 	}
-// 
+//
 // 	output.Info("  %s", cmd)
 // }

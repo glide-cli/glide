@@ -292,22 +292,22 @@ func (cm *CompletionManager) canCreateDir(dir string) bool {
 // 	rootCmd.RegisterFlagCompletionFunc("format", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 // 		return []string{"table", "json", "yaml", "plain"}, cobra.ShellCompDirectiveNoFileComp
 // 	})
-// 
+//
 // 	// Add completion for container services (for logs, shell commands)
 // 	containerCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 // 		return cm.getContainerCompletions(), cobra.ShellCompDirectiveNoFileComp
 // 	}
-// 
+//
 // 	// Add completion for git branches (for worktree command)
 // 	branchCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 // 		return cm.getBranchCompletions(), cobra.ShellCompDirectiveNoFileComp
 // 	}
-// 
+//
 // 	// Add completion for configuration keys
 // 	configKeyCompletion := func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 // 		return cm.getConfigKeyCompletions(), cobra.ShellCompDirectiveNoFileComp
 // 	}
-// 
+//
 // 	// We'll register these with specific commands when they're created
 // 	_ = containerCompletion
 // 	_ = branchCompletion

@@ -49,15 +49,15 @@ func showContext(cmd *cobra.Command, app *app.Application) {
 // func showConfig(cmd *cobra.Command, app *app.Application) {
 // 	output := app.OutputManager
 // 	cfg := app.Config
-// 
+//
 // 	if cfg == nil {
 // 		output.Info("No configuration loaded")
 // 		return
 // 	}
-// 
+//
 // 	output.Info("=== Configuration ===")
 // 	output.Info("Default Project: %s", cfg.DefaultProject)
-// 
+//
 // 	if len(cfg.Projects) > 0 {
 // 		output.Info("")
 // 		output.Info("=== Projects ===")
@@ -67,7 +67,7 @@ func showContext(cmd *cobra.Command, app *app.Application) {
 // 			output.Info("  Mode: %s", project.Mode)
 // 		}
 // 	}
-// 
+//
 // 	output.Info("")
 // 	output.Info("=== Defaults ===")
 // 	output.Info("Test:")
@@ -75,7 +75,7 @@ func showContext(cmd *cobra.Command, app *app.Application) {
 // 	output.Info("  Processes: %d", cfg.Defaults.Test.Processes)
 // 	output.Info("  Coverage: %v", cfg.Defaults.Test.Coverage)
 // 	output.Info("  Verbose: %v", cfg.Defaults.Test.Verbose)
-// 
+//
 // 	output.Info("Docker:")
 // 	output.Info("  Compose Timeout: %d", cfg.Defaults.Docker.ComposeTimeout)
 // 	output.Info("  Auto Start: %v", cfg.Defaults.Docker.AutoStart)
