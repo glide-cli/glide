@@ -74,7 +74,7 @@ func (c *CLI) RegisterCompletions(rootCmd *cobra.Command) {
 func (c *CLI) AddLocalCommands(cmd *cobra.Command) {
 	// Add debug commands
 	c.addDebugCommands(cmd)
-	
+
 	// Add all registered commands from the builder's registry
 	// This ensures aliases are properly set
 	for _, subCmd := range c.builder.registry.CreateAll() {

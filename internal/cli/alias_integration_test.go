@@ -12,28 +12,28 @@ import (
 func TestCLI_AliasIntegration(t *testing.T) {
 	// Create a test application
 	application := app.NewApplication()
-	
+
 	// Create CLI and builder
 	cli := New(application)
-	
+
 	// Build root command
 	rootCmd := &cobra.Command{
 		Use:   "glid",
 		Short: "Test CLI",
 	}
-	
+
 	// Add local commands which should include aliases
 	cli.AddLocalCommands(rootCmd)
-	
+
 	// Test that commands exist with their aliases
 	artisanCmd := findCommand(rootCmd, "artisan")
 	assert.NotNil(t, artisanCmd)
 	assert.Contains(t, artisanCmd.Aliases, "a")
-	
+
 	composerCmd := findCommand(rootCmd, "composer")
 	assert.NotNil(t, composerCmd)
 	assert.Contains(t, composerCmd.Aliases, "c")
-	
+
 	testCmd := findCommand(rootCmd, "test")
 	assert.NotNil(t, testCmd)
 	assert.Contains(t, testCmd.Aliases, "t")
@@ -42,10 +42,10 @@ func TestCLI_AliasIntegration(t *testing.T) {
 func TestCLI_AliasExecution(t *testing.T) {
 	// Create a test application
 	application := app.NewApplication()
-	
+
 	// Create a builder with a test command
 	builder := NewBuilder(application)
-	
+
 	// Register a test command with alias
 	testExecuted := false
 	builder.registry.Register("hello", func() *cobra.Command {
@@ -60,24 +60,24 @@ func TestCLI_AliasExecution(t *testing.T) {
 		Name:    "hello",
 		Aliases: []string{"h"},
 	})
-	
+
 	// Build the root command
 	rootCmd := &cobra.Command{
 		Use:   "test",
 		Short: "Test app",
 	}
-	
+
 	// Add commands from registry
 	for _, cmd := range builder.registry.CreateAll() {
 		rootCmd.AddCommand(cmd)
 	}
-	
+
 	// Test executing with the alias
 	buf := new(bytes.Buffer)
 	rootCmd.SetOut(buf)
 	rootCmd.SetErr(buf)
 	rootCmd.SetArgs([]string{"h"})
-	
+
 	err := rootCmd.Execute()
 	assert.NoError(t, err)
 	assert.True(t, testExecuted, "Command should have been executed via alias")
@@ -87,7 +87,7 @@ func TestCLI_AliasHelp(t *testing.T) {
 	// Create a builder with test commands
 	application := app.NewApplication()
 	builder := NewBuilder(application)
-	
+
 	// Register a command with multiple aliases
 	builder.registry.Register("migrate", func() *cobra.Command {
 		return &cobra.Command{
@@ -98,26 +98,26 @@ func TestCLI_AliasHelp(t *testing.T) {
 		Name:    "migrate",
 		Aliases: []string{"m", "mig"},
 	})
-	
+
 	// Build root command
 	rootCmd := &cobra.Command{
 		Use:   "test",
 		Short: "Test app",
 	}
-	
+
 	for _, cmd := range builder.registry.CreateAll() {
 		rootCmd.AddCommand(cmd)
 	}
-	
+
 	// Capture help output
 	buf := new(bytes.Buffer)
 	rootCmd.SetOut(buf)
 	rootCmd.SetErr(buf)
 	rootCmd.SetArgs([]string{"migrate", "--help"})
-	
+
 	err := rootCmd.Execute()
 	assert.NoError(t, err)
-	
+
 	// Check that help output is generated
 	output := buf.String()
 	assert.NotEmpty(t, output)
@@ -128,31 +128,31 @@ func TestBuilder_RegisteredAliases(t *testing.T) {
 	// Create a real builder and verify it has the expected aliases
 	application := app.NewApplication()
 	builder := NewBuilder(application)
-	
+
 	// Check that artisan has alias 'a'
 	meta, exists := builder.registry.GetMetadata("artisan")
 	assert.True(t, exists)
 	assert.Contains(t, meta.Aliases, "a")
-	
+
 	// Check that composer has alias 'c'
 	meta, exists = builder.registry.GetMetadata("composer")
 	assert.True(t, exists)
 	assert.Contains(t, meta.Aliases, "c")
-	
+
 	// Check that test has alias 't'
 	meta, exists = builder.registry.GetMetadata("test")
 	assert.True(t, exists)
 	assert.Contains(t, meta.Aliases, "t")
-	
+
 	// Verify aliases resolve correctly
 	factory, exists := builder.registry.Get("a")
 	assert.True(t, exists)
 	assert.NotNil(t, factory)
-	
+
 	factory, exists = builder.registry.Get("c")
 	assert.True(t, exists)
 	assert.NotNil(t, factory)
-	
+
 	factory, exists = builder.registry.Get("t")
 	assert.True(t, exists)
 	assert.NotNil(t, factory)
@@ -161,7 +161,7 @@ func TestBuilder_RegisteredAliases(t *testing.T) {
 func TestCLI_AliasConflictPrevention(t *testing.T) {
 	// Test that we cannot register conflicting aliases
 	registry := NewRegistry()
-	
+
 	// Register first command with alias
 	err := registry.Register("first", func() *cobra.Command {
 		return &cobra.Command{Use: "first"}
@@ -170,7 +170,7 @@ func TestCLI_AliasConflictPrevention(t *testing.T) {
 		Aliases: []string{"f"},
 	})
 	assert.NoError(t, err)
-	
+
 	// Try to register second command with same alias
 	err = registry.Register("second", func() *cobra.Command {
 		return &cobra.Command{Use: "second"}
@@ -180,7 +180,7 @@ func TestCLI_AliasConflictPrevention(t *testing.T) {
 	})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "alias f already registered")
-	
+
 	// Try to register a command named 'f' (conflicts with alias)
 	err = registry.Register("f", func() *cobra.Command {
 		return &cobra.Command{Use: "f"}
@@ -210,10 +210,10 @@ func TestCLI_RealWorldAliasUsage(t *testing.T) {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	
+
 	// Track which command was executed
 	var executedCommand string
-	
+
 	// Add artisan command with alias
 	artisanCmd := &cobra.Command{
 		Use:     "artisan",
@@ -224,7 +224,7 @@ func TestCLI_RealWorldAliasUsage(t *testing.T) {
 		},
 	}
 	rootCmd.AddCommand(artisanCmd)
-	
+
 	// Add composer command with alias
 	composerCmd := &cobra.Command{
 		Use:     "composer",
@@ -235,21 +235,21 @@ func TestCLI_RealWorldAliasUsage(t *testing.T) {
 		},
 	}
 	rootCmd.AddCommand(composerCmd)
-	
+
 	// Test executing 'a' runs artisan
 	executedCommand = ""
 	rootCmd.SetArgs([]string{"a"})
 	err := rootCmd.Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, "artisan", executedCommand)
-	
+
 	// Test executing 'c' runs composer
 	executedCommand = ""
 	rootCmd.SetArgs([]string{"c"})
 	err = rootCmd.Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, "composer", executedCommand)
-	
+
 	// Test that full names still work
 	executedCommand = ""
 	rootCmd.SetArgs([]string{"artisan"})
@@ -264,7 +264,7 @@ func TestCLI_AliasVisibility(t *testing.T) {
 		Use:   "test",
 		Short: "Test CLI",
 	}
-	
+
 	// Add a command with multiple aliases
 	cmd := &cobra.Command{
 		Use:     "database",
@@ -272,25 +272,25 @@ func TestCLI_AliasVisibility(t *testing.T) {
 		Short:   "Database operations",
 	}
 	rootCmd.AddCommand(cmd)
-	
+
 	// Get help output
 	buf := new(bytes.Buffer)
 	rootCmd.SetOut(buf)
 	rootCmd.SetArgs([]string{"--help"})
 	rootCmd.Execute()
-	
+
 	helpText := buf.String()
-	
+
 	// The main command list should show the primary name
 	assert.Contains(t, helpText, "database")
-	
+
 	// Test that we can get help for the command using an alias
 	buf.Reset()
 	rootCmd.SetOut(buf)
 	rootCmd.SetArgs([]string{"db", "--help"})
 	err := rootCmd.Execute()
 	assert.NoError(t, err)
-	
+
 	aliasHelpText := buf.String()
 	// The help should show something about the command
 	assert.NotEmpty(t, aliasHelpText)
