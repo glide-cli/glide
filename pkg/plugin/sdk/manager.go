@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/go-hclog"
 	plugin "github.com/hashicorp/go-plugin"
 	v1 "github.com/ivannovak/glide/pkg/plugin/sdk/v1"
 )
@@ -166,6 +167,28 @@ func (m *Manager) loadPlugin(info *PluginInfo) error {
 		return nil
 	}
 
+	// Configure plugin logger based on environment
+	var logger hclog.Logger
+	switch {
+	case os.Getenv("GLIDE_PLUGIN_DEBUG") == "true" || os.Getenv("PLUGIN_DEBUG") == "true":
+		// Full debug output
+		logger = hclog.New(&hclog.LoggerOptions{
+			Name:   "plugin",
+			Level:  hclog.Debug,
+			Output: os.Stderr,
+		})
+	case os.Getenv("GLIDE_PLUGIN_TRACE") == "true" || os.Getenv("PLUGIN_TRACE") == "true":
+		// Trace level (most verbose)
+		logger = hclog.New(&hclog.LoggerOptions{
+			Name:   "plugin",
+			Level:  hclog.Trace,
+			Output: os.Stderr,
+		})
+	default:
+		// Suppress all plugin debug output by default
+		logger = hclog.NewNullLogger()
+	}
+
 	// Create plugin client
 	client := plugin.NewClient(&plugin.ClientConfig{
 		HandshakeConfig:  v1.HandshakeConfig,
@@ -173,6 +196,7 @@ func (m *Manager) loadPlugin(info *PluginInfo) error {
 		Cmd:              exec.Command(info.Path),
 		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
 		Managed:          true,
+		Logger:           logger,
 	})
 
 	// Connect to plugin
