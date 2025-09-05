@@ -115,7 +115,6 @@ jobs:
   security:
     needs: validate
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't block on security issues initially
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -124,7 +123,6 @@ jobs:
       - uses: securego/gosec@master
         with:
           args: '-exclude=G104,G204,G304,G301,G302,G306,G115 -severity=medium -confidence=medium -fmt sarif -out results.sarif ./...'
-        continue-on-error: true
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
