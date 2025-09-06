@@ -10,6 +10,17 @@ Glide is a context-aware development CLI that adapts its behavior based on your 
 glide [global-flags] <command> [subcommand] [flags] [arguments]
 ```
 
+### Command Aliases
+
+Many commands support short aliases for faster typing:
+
+| Command | Aliases | Example |
+|---------|---------|---------|
+| `artisan` | `a` | `glide a migrate` |
+| `composer` | `c` | `glide c install` |
+| `test` | `t` | `glide t --filter UserTest` |
+| `global` | `g` | `glide g status` |
+
 ### Global Flags
 
 - `--help, -h` - Show help for any command
@@ -93,15 +104,15 @@ glide context --json          # Output as JSON
 
 ## Development Commands
 
-### `glide test`
+### `glide test` (alias: `t`)
 
 Run project tests with intelligent detection.
 
 ```bash
 glide test                    # Run all tests
-glide test unit               # Run unit tests only
+glide t unit                  # Run unit tests only (using alias)
 glide test feature            # Run feature tests
-glide test <pattern>          # Run tests matching pattern
+glide t <pattern>             # Run tests matching pattern (using alias)
 glide test --coverage         # Generate coverage report
 ```
 
