@@ -28,7 +28,7 @@ type PluginMetadata struct {
 	Version     string
 	Author      string
 	Description string
-	Aliases     []string       // Plugin-level aliases
+	Aliases     []string // Plugin-level aliases
 	Commands    []CommandInfo
 	BuildTags   []string // Required build tags
 	ConfigKeys  []string // Configuration keys used

@@ -61,7 +61,7 @@ func (r *Registry) Register(p Plugin) error {
 
 	// Get plugin metadata to register aliases
 	meta := p.Metadata()
-	
+
 	// Check for alias conflicts
 	for _, alias := range meta.Aliases {
 		if _, exists := r.plugins[alias]; exists {
@@ -74,12 +74,12 @@ func (r *Registry) Register(p Plugin) error {
 
 	// Register the plugin
 	r.plugins[name] = p
-	
+
 	// Register all aliases
 	for _, alias := range meta.Aliases {
 		r.aliases[alias] = name
 	}
-	
+
 	return nil
 }
 
@@ -173,7 +173,7 @@ func SetConfig(config map[string]interface{}) {
 func (r *Registry) ResolveAlias(alias string) (string, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	
+
 	canonical, ok := r.aliases[alias]
 	return canonical, ok
 }
@@ -182,12 +182,12 @@ func (r *Registry) ResolveAlias(alias string) (string, bool) {
 func (r *Registry) GetAliases(pluginName string) []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	
+
 	plugin, exists := r.plugins[pluginName]
 	if !exists {
 		return nil
 	}
-	
+
 	return plugin.Metadata().Aliases
 }
 
@@ -195,7 +195,7 @@ func (r *Registry) GetAliases(pluginName string) []string {
 func (r *Registry) IsAlias(name string) bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	
+
 	_, ok := r.aliases[name]
 	return ok
 }

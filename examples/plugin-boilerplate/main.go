@@ -50,7 +50,7 @@ func (p *MyPlugin) GetMetadata(ctx context.Context, _ *sdk.Empty) (*sdk.PluginMe
 		MinSdk:      "v1.0.0",                       // Minimum SDK version required
 		// Plugin-level aliases allow users to access your plugin with shorter names
 		// For example: 'glid mp' instead of 'glid myplugin'
-		Tags:        []string{"mp", "myp"},          // Plugin-level aliases
+		Tags: []string{"mp", "myp"}, // Plugin-level aliases
 	}, nil
 }
 

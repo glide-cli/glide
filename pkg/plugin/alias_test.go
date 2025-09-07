@@ -214,7 +214,7 @@ func TestRegistry_MultiplePluginsWithAliases(t *testing.T) {
 
 func TestRegistry_LoadAllWithAliases(t *testing.T) {
 	registry := NewRegistry()
-	
+
 	// Register plugin with aliases
 	plugin := &MockAliasPlugin{
 		name:    "example",
