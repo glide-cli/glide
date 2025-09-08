@@ -43,6 +43,7 @@ func (b *Builder) registerCommands() {
 		Name:        "plugins",
 		Category:    CategoryCore,
 		Description: "Manage runtime plugins",
+		Aliases:     []string{"plugin"},
 	})
 
 	b.registry.Register("config", func() *cobra.Command {
