@@ -92,12 +92,18 @@ func (r *RuntimePluginIntegration) addPluginCommands(rootCmd *cobra.Command, plu
 			pluginCommand.Annotations["global_plugin"] = "true"
 
 			// Check for conflicts
+			conflicted := false
 			for _, existing := range rootCmd.Commands() {
 				if existing.Name() == pluginCommand.Name() {
 					fmt.Fprintf(os.Stderr, "Warning: plugin %s command '%s' conflicts with existing command, skipping\n",
 						plugin.Name, pluginCommand.Name())
-					continue
+					conflicted = true
+					break
 				}
+			}
+			
+			if conflicted {
+				continue
 			}
 
 			rootCmd.AddCommand(pluginCommand)
