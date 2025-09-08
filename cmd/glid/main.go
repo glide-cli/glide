@@ -121,6 +121,16 @@ func Execute() error {
 		Hidden: true,
 	})
 
+	// Set custom help function to use our enhanced help
+	rootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		// Use our custom help command's ShowHelp method
+		hc := &cliPkg.HelpCommand{
+			ProjectContext: ctx,
+			Config:         cfg,
+		}
+		_ = hc.ShowHelp(cmd)
+	})
+
 	// Load plugins
 	// Plugin configuration will come from config file in future phases
 	pluginConfig := make(map[string]interface{})

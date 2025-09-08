@@ -17,15 +17,15 @@ import (
 
 // HelpCommand handles the enhanced help system
 type HelpCommand struct {
-	ctx *context.ProjectContext
-	cfg *config.Config
+	ProjectContext *context.ProjectContext
+	Config         *config.Config
 }
 
 // NewHelpCommand creates a new enhanced help command
 func NewHelpCommand(ctx *context.ProjectContext, cfg *config.Config) *cobra.Command {
 	hc := &HelpCommand{
-		ctx: ctx,
-		cfg: cfg,
+		ProjectContext: ctx,
+		Config:         cfg,
 	}
 
 	cmd := &cobra.Command{
@@ -53,7 +53,7 @@ Examples:
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// Show the default help
-				return hc.showHelp(cmd.Root())
+				return hc.ShowHelp(cmd.Root())
 			}
 
 			topic := args[0]
@@ -99,7 +99,7 @@ func (hc *HelpCommand) showGettingStarted() error {
 	output.Raw("\n")
 	output.Info("Step 3: Learn Your Mode")
 
-	if hc.ctx.DevelopmentMode == context.ModeMultiWorktree {
+	if hc.ProjectContext.DevelopmentMode == context.ModeMultiWorktree {
 		output.Raw("You're in multi-worktree mode! Try:\n")
 		output.Raw("  glid global status       # See all your worktrees\n")
 		output.Raw("  glid global worktree feature/awesome-feature\n")
@@ -127,7 +127,7 @@ func (hc *HelpCommand) showWorkflows() error {
 	output.Success("🔄 Common Development Workflows")
 	output.Raw("\n")
 
-	if hc.ctx.DevelopmentMode == context.ModeMultiWorktree {
+	if hc.ProjectContext.DevelopmentMode == context.ModeMultiWorktree {
 		output.Info("Multi-Worktree Workflows")
 		output.Raw("\n")
 
@@ -215,12 +215,12 @@ func (hc *HelpCommand) showModes() error {
 	output.Raw("  • Isolated Docker environments per feature\n")
 
 	output.Raw("\n")
-	output.Info("Current Mode: %s", string(hc.ctx.DevelopmentMode))
+	output.Info("Current Mode: %s", string(hc.ProjectContext.DevelopmentMode))
 
-	if hc.ctx.DevelopmentMode == context.ModeMultiWorktree {
+	if hc.ProjectContext.DevelopmentMode == context.ModeMultiWorktree {
 		output.Raw("You're using the advanced multi-worktree setup!\n")
 		output.Raw("Try: glid global list\n")
-	} else if hc.ctx.DevelopmentMode == context.ModeSingleRepo {
+	} else if hc.ProjectContext.DevelopmentMode == context.ModeSingleRepo {
 		output.Raw("You're using single-repository mode.\n")
 		output.Raw("To upgrade: glid setup\n")
 	} else {
@@ -368,15 +368,15 @@ type CommandEntry struct {
 	PluginName  string
 }
 
-// showHelp displays the categorized, context-aware help
-func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
+// ShowHelp displays the categorized help output
+func (hc *HelpCommand) ShowHelp(rootCmd *cobra.Command) error {
 	// Header
 	headerColor := color.New(color.FgWhite, color.Bold)
 	headerColor.Printf("\n%s", rootCmd.Use)
 	fmt.Printf(" - %s\n", rootCmd.Short)
 
 	// Show context-specific information if we have project context
-	if hc.ctx != nil {
+	if hc.ProjectContext != nil {
 		hc.showContextInfo()
 	}
 
@@ -575,7 +575,7 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 	fmt.Println("  glid help workflows         Common development patterns")
 
 	// Context-aware tips
-	if hc.ctx != nil {
+	if hc.ProjectContext != nil {
 		fmt.Println()
 		hc.showContextTips()
 	}
@@ -666,22 +666,22 @@ func (hc *HelpCommand) getPluginSubcommands(rootCmd *cobra.Command, pluginName s
 // shouldShowCategory determines if a category should be shown based on context
 func (hc *HelpCommand) shouldShowCategory(category string) bool {
 	// No context means show everything except global
-	if hc.ctx == nil {
+	if hc.ProjectContext == nil {
 		return category != "global"
 	}
 
 	switch category {
 	case "global":
 		// Only show global commands in multi-worktree mode
-		return hc.ctx.DevelopmentMode == context.ModeMultiWorktree
+		return hc.ProjectContext.DevelopmentMode == context.ModeMultiWorktree
 
 	case "docker", "testing", "developer", "database":
 		// Don't show development commands when not in a project
-		if hc.ctx.DevelopmentMode == "" {
+		if hc.ProjectContext.DevelopmentMode == "" {
 			return false
 		}
 		// Don't show these in the project root of multi-worktree
-		if hc.ctx.DevelopmentMode == context.ModeMultiWorktree && hc.ctx.Location == context.LocationRoot {
+		if hc.ProjectContext.DevelopmentMode == context.ModeMultiWorktree && hc.ProjectContext.Location == context.LocationRoot {
 			return false
 		}
 		return true
@@ -696,17 +696,17 @@ func (hc *HelpCommand) shouldShowCategory(category string) bool {
 func (hc *HelpCommand) showContextInfo() {
 	contextColor := color.New(color.FgCyan)
 
-	switch hc.ctx.DevelopmentMode {
+	switch hc.ProjectContext.DevelopmentMode {
 	case context.ModeMultiWorktree:
 		contextColor.Print("📂 Multi-worktree mode")
-		switch hc.ctx.Location {
+		switch hc.ProjectContext.Location {
 		case context.LocationRoot:
 			fmt.Printf(" • Project root")
 		case context.LocationMainRepo:
 			fmt.Printf(" • Main repository (vcs/)")
 		case context.LocationWorktree:
-			if hc.ctx.WorktreeName != "" {
-				fmt.Printf(" • Worktree: %s", hc.ctx.WorktreeName)
+			if hc.ProjectContext.WorktreeName != "" {
+				fmt.Printf(" • Worktree: %s", hc.ProjectContext.WorktreeName)
 			} else {
 				fmt.Printf(" • Worktree")
 			}
@@ -725,9 +725,9 @@ func (hc *HelpCommand) showContextInfo() {
 func (hc *HelpCommand) showContextTips() {
 	tipColor := color.New(color.FgYellow)
 
-	switch hc.ctx.DevelopmentMode {
+	switch hc.ProjectContext.DevelopmentMode {
 	case context.ModeMultiWorktree:
-		switch hc.ctx.Location {
+		switch hc.ProjectContext.Location {
 		case context.LocationRoot:
 			tipColor.Println("💡 Tip: You're in the project root. Use 'glid global' commands to manage worktrees.")
 		case context.LocationMainRepo:
