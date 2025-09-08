@@ -101,7 +101,7 @@ func (r *RuntimePluginIntegration) addPluginCommands(rootCmd *cobra.Command, plu
 					break
 				}
 			}
-			
+
 			if conflicted {
 				continue
 			}

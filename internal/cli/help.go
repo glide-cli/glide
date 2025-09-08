@@ -714,7 +714,7 @@ func (hc *HelpCommand) shouldShowCommand(cmd *cobra.Command) bool {
 	if cmd.Annotations == nil {
 		return true
 	}
-	
+
 	visibility, hasVisibility := cmd.Annotations["visibility"]
 	if !hasVisibility {
 		return true
@@ -735,32 +735,32 @@ func (hc *HelpCommand) shouldShowCommand(cmd *cobra.Command) bool {
 	switch visibility {
 	case "always":
 		return true
-	
+
 	case "project-only":
 		// Show only when in a project (any mode)
 		return hc.ProjectContext.DevelopmentMode != ""
-	
+
 	case "worktree-only":
 		// Show only when in a worktree (not at multi-worktree root)
 		if hc.ProjectContext.DevelopmentMode != context.ModeMultiWorktree {
 			return false
 		}
 		return hc.ProjectContext.Location == context.LocationWorktree
-	
+
 	case "root-only":
 		// Show only at multi-worktree root
 		if hc.ProjectContext.DevelopmentMode != context.ModeMultiWorktree {
 			return false
 		}
 		return hc.ProjectContext.Location == context.LocationRoot
-	
+
 	case "non-root":
 		// Show everywhere except multi-worktree root
 		if hc.ProjectContext != nil && hc.ProjectContext.DevelopmentMode == context.ModeMultiWorktree {
 			return hc.ProjectContext.Location != context.LocationRoot
 		}
 		return true
-	
+
 	default:
 		// Unknown visibility setting, default to showing
 		return true
