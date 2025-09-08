@@ -13,13 +13,18 @@ import (
 
 // RuntimePluginIntegration handles runtime plugin loading and command execution
 type RuntimePluginIntegration struct {
-	manager *sdk.Manager
+	manager          *sdk.Manager
+	customCategories []*v1.CustomCategory
 }
+
+// globalPluginCategories stores custom categories from all loaded plugins
+var globalPluginCategories []*v1.CustomCategory
 
 // NewRuntimePluginIntegration creates a new runtime plugin integration
 func NewRuntimePluginIntegration() *RuntimePluginIntegration {
 	return &RuntimePluginIntegration{
-		manager: sdk.NewManager(nil),
+		manager:          sdk.NewManager(nil),
+		customCategories: make([]*v1.CustomCategory, 0),
 	}
 }
 
@@ -59,6 +64,13 @@ func (r *RuntimePluginIntegration) addPluginCommands(rootCmd *cobra.Command, plu
 
 	// Get metadata
 	metadata := plugin.Metadata
+
+	// Get custom categories if the plugin defines them
+	customCategories, _ := glidePlugin.GetCustomCategories(ctx, &v1.Empty{})
+	if customCategories != nil && len(customCategories.Categories) > 0 {
+		// Register custom categories with the help system
+		r.registerCustomCategories(customCategories.Categories)
+	}
 
 	// Check if plugin wants global registration (not namespaced)
 	// Default to namespaced (true) if not specified for backward compatibility
@@ -281,4 +293,21 @@ func IsRuntimePluginInstalled(name string) bool {
 	pluginFile = filepath.Join(pluginPath, name)
 	_, err := os.Stat(pluginFile)
 	return err == nil
+}
+
+// registerCustomCategories stores custom categories from a plugin
+func (r *RuntimePluginIntegration) registerCustomCategories(categories []*v1.CustomCategory) {
+	r.customCategories = append(r.customCategories, categories...)
+	// Also update global variable
+	globalPluginCategories = append(globalPluginCategories, categories...)
+}
+
+// GetCustomCategories returns all custom categories defined by plugins
+func (r *RuntimePluginIntegration) GetCustomCategories() []*v1.CustomCategory {
+	return r.customCategories
+}
+
+// GetGlobalPluginCategories returns all custom categories from loaded plugins
+func GetGlobalPluginCategories() []*v1.CustomCategory {
+	return globalPluginCategories
 }

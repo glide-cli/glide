@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        v5.29.3
-// source: pkg/plugin/sdk/v1/plugin.proto
+// source: plugin.proto
 
 package v1
 
@@ -72,11 +72,11 @@ func (x StreamMessage_Type) String() string {
 }
 
 func (StreamMessage_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_pkg_plugin_sdk_v1_plugin_proto_enumTypes[0].Descriptor()
+	return file_plugin_proto_enumTypes[0].Descriptor()
 }
 
 func (StreamMessage_Type) Type() protoreflect.EnumType {
-	return &file_pkg_plugin_sdk_v1_plugin_proto_enumTypes[0]
+	return &file_plugin_proto_enumTypes[0]
 }
 
 func (x StreamMessage_Type) Number() protoreflect.EnumNumber {
@@ -85,7 +85,7 @@ func (x StreamMessage_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use StreamMessage_Type.Descriptor instead.
 func (StreamMessage_Type) EnumDescriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{9, 0}
+	return file_plugin_proto_rawDescGZIP(), []int{11, 0}
 }
 
 // Empty message for RPC calls with no parameters
@@ -97,7 +97,7 @@ type Empty struct {
 
 func (x *Empty) Reset() {
 	*x = Empty{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[0]
+	mi := &file_plugin_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -109,7 +109,7 @@ func (x *Empty) String() string {
 func (*Empty) ProtoMessage() {}
 
 func (x *Empty) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[0]
+	mi := &file_plugin_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -122,7 +122,7 @@ func (x *Empty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Empty.ProtoReflect.Descriptor instead.
 func (*Empty) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{0}
+	return file_plugin_proto_rawDescGZIP(), []int{0}
 }
 
 type PluginMetadata struct {
@@ -145,7 +145,7 @@ type PluginMetadata struct {
 
 func (x *PluginMetadata) Reset() {
 	*x = PluginMetadata{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[1]
+	mi := &file_plugin_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -157,7 +157,7 @@ func (x *PluginMetadata) String() string {
 func (*PluginMetadata) ProtoMessage() {}
 
 func (x *PluginMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[1]
+	mi := &file_plugin_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -170,7 +170,7 @@ func (x *PluginMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PluginMetadata.ProtoReflect.Descriptor instead.
 func (*PluginMetadata) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{1}
+	return file_plugin_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PluginMetadata) GetName() string {
@@ -273,7 +273,7 @@ type CommandInfo struct {
 
 func (x *CommandInfo) Reset() {
 	*x = CommandInfo{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[2]
+	mi := &file_plugin_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -285,7 +285,7 @@ func (x *CommandInfo) String() string {
 func (*CommandInfo) ProtoMessage() {}
 
 func (x *CommandInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[2]
+	mi := &file_plugin_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -298,7 +298,7 @@ func (x *CommandInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommandInfo.ProtoReflect.Descriptor instead.
 func (*CommandInfo) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{2}
+	return file_plugin_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CommandInfo) GetName() string {
@@ -366,7 +366,7 @@ type CommandList struct {
 
 func (x *CommandList) Reset() {
 	*x = CommandList{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[3]
+	mi := &file_plugin_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -378,7 +378,7 @@ func (x *CommandList) String() string {
 func (*CommandList) ProtoMessage() {}
 
 func (x *CommandList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[3]
+	mi := &file_plugin_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -391,7 +391,7 @@ func (x *CommandList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommandList.ProtoReflect.Descriptor instead.
 func (*CommandList) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{3}
+	return file_plugin_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CommandList) GetCommands() []*CommandInfo {
@@ -410,7 +410,7 @@ type ConfigureRequest struct {
 
 func (x *ConfigureRequest) Reset() {
 	*x = ConfigureRequest{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[4]
+	mi := &file_plugin_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -422,7 +422,7 @@ func (x *ConfigureRequest) String() string {
 func (*ConfigureRequest) ProtoMessage() {}
 
 func (x *ConfigureRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[4]
+	mi := &file_plugin_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -435,7 +435,7 @@ func (x *ConfigureRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigureRequest.ProtoReflect.Descriptor instead.
 func (*ConfigureRequest) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{4}
+	return file_plugin_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ConfigureRequest) GetConfig() map[string]string {
@@ -455,7 +455,7 @@ type ConfigureResponse struct {
 
 func (x *ConfigureResponse) Reset() {
 	*x = ConfigureResponse{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[5]
+	mi := &file_plugin_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -467,7 +467,7 @@ func (x *ConfigureResponse) String() string {
 func (*ConfigureResponse) ProtoMessage() {}
 
 func (x *ConfigureResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[5]
+	mi := &file_plugin_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -480,7 +480,7 @@ func (x *ConfigureResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigureResponse.ProtoReflect.Descriptor instead.
 func (*ConfigureResponse) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{5}
+	return file_plugin_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ConfigureResponse) GetSuccess() bool {
@@ -511,7 +511,7 @@ type ExecuteRequest struct {
 
 func (x *ExecuteRequest) Reset() {
 	*x = ExecuteRequest{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[6]
+	mi := &file_plugin_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -523,7 +523,7 @@ func (x *ExecuteRequest) String() string {
 func (*ExecuteRequest) ProtoMessage() {}
 
 func (x *ExecuteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[6]
+	mi := &file_plugin_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -536,7 +536,7 @@ func (x *ExecuteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteRequest.ProtoReflect.Descriptor instead.
 func (*ExecuteRequest) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{6}
+	return file_plugin_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ExecuteRequest) GetCommand() string {
@@ -596,7 +596,7 @@ type ExecuteResponse struct {
 
 func (x *ExecuteResponse) Reset() {
 	*x = ExecuteResponse{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[7]
+	mi := &file_plugin_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -608,7 +608,7 @@ func (x *ExecuteResponse) String() string {
 func (*ExecuteResponse) ProtoMessage() {}
 
 func (x *ExecuteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[7]
+	mi := &file_plugin_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -621,7 +621,7 @@ func (x *ExecuteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteResponse.ProtoReflect.Descriptor instead.
 func (*ExecuteResponse) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{7}
+	return file_plugin_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ExecuteResponse) GetSuccess() bool {
@@ -688,7 +688,7 @@ type Capabilities struct {
 
 func (x *Capabilities) Reset() {
 	*x = Capabilities{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[8]
+	mi := &file_plugin_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -700,7 +700,7 @@ func (x *Capabilities) String() string {
 func (*Capabilities) ProtoMessage() {}
 
 func (x *Capabilities) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[8]
+	mi := &file_plugin_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -713,7 +713,7 @@ func (x *Capabilities) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Capabilities.ProtoReflect.Descriptor instead.
 func (*Capabilities) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{8}
+	return file_plugin_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Capabilities) GetRequiresDocker() bool {
@@ -765,6 +765,120 @@ func (x *Capabilities) GetRequiredEnvVars() []string {
 	return nil
 }
 
+// CustomCategory allows plugins to define their own command categories
+type CustomCategory struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                   // Unique identifier (e.g., "infrastructure")
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`               // Display name (e.g., "Infrastructure Management")
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"` // Category description
+	Priority      int32                  `protobuf:"varint,4,opt,name=priority,proto3" json:"priority,omitempty"`      // Display priority (lower = higher priority)
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CustomCategory) Reset() {
+	*x = CustomCategory{}
+	mi := &file_plugin_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CustomCategory) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CustomCategory) ProtoMessage() {}
+
+func (x *CustomCategory) ProtoReflect() protoreflect.Message {
+	mi := &file_plugin_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CustomCategory.ProtoReflect.Descriptor instead.
+func (*CustomCategory) Descriptor() ([]byte, []int) {
+	return file_plugin_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CustomCategory) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CustomCategory) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CustomCategory) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CustomCategory) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
+// CategoryList contains custom categories defined by a plugin
+type CategoryList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Categories    []*CustomCategory      `protobuf:"bytes,1,rep,name=categories,proto3" json:"categories,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CategoryList) Reset() {
+	*x = CategoryList{}
+	mi := &file_plugin_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CategoryList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CategoryList) ProtoMessage() {}
+
+func (x *CategoryList) ProtoReflect() protoreflect.Message {
+	mi := &file_plugin_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CategoryList.ProtoReflect.Descriptor instead.
+func (*CategoryList) Descriptor() ([]byte, []int) {
+	return file_plugin_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CategoryList) GetCategories() []*CustomCategory {
+	if x != nil {
+		return x.Categories
+	}
+	return nil
+}
+
 type StreamMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          StreamMessage_Type     `protobuf:"varint,1,opt,name=type,proto3,enum=v1.StreamMessage_Type" json:"type,omitempty"`
@@ -781,7 +895,7 @@ type StreamMessage struct {
 
 func (x *StreamMessage) Reset() {
 	*x = StreamMessage{}
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[9]
+	mi := &file_plugin_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -793,7 +907,7 @@ func (x *StreamMessage) String() string {
 func (*StreamMessage) ProtoMessage() {}
 
 func (x *StreamMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_plugin_sdk_v1_plugin_proto_msgTypes[9]
+	mi := &file_plugin_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -806,7 +920,7 @@ func (x *StreamMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamMessage.ProtoReflect.Descriptor instead.
 func (*StreamMessage) Descriptor() ([]byte, []int) {
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP(), []int{9}
+	return file_plugin_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *StreamMessage) GetType() StreamMessage_Type {
@@ -865,11 +979,11 @@ func (x *StreamMessage) GetTimestampUnix() int64 {
 	return 0
 }
 
-var File_pkg_plugin_sdk_v1_plugin_proto protoreflect.FileDescriptor
+var File_plugin_proto protoreflect.FileDescriptor
 
-const file_pkg_plugin_sdk_v1_plugin_proto_rawDesc = "" +
+const file_plugin_proto_rawDesc = "" +
 	"\n" +
-	"\x1epkg/plugin/sdk/v1/plugin.proto\x12\x02v1\"\a\n" +
+	"\fplugin.proto\x12\x02v1\"\a\n" +
 	"\x05Empty\"\xac\x03\n" +
 	"\x0ePluginMetadata\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
@@ -943,7 +1057,16 @@ const file_pkg_plugin_sdk_v1_plugin_proto_rawDesc = "" +
 	"\x14requires_interactive\x18\x04 \x01(\bR\x13requiresInteractive\x12+\n" +
 	"\x11required_commands\x18\x05 \x03(\tR\x10requiredCommands\x12%\n" +
 	"\x0erequired_paths\x18\x06 \x03(\tR\rrequiredPaths\x12*\n" +
-	"\x11required_env_vars\x18\a \x03(\tR\x0frequiredEnvVars\"\xdb\x02\n" +
+	"\x11required_env_vars\x18\a \x03(\tR\x0frequiredEnvVars\"r\n" +
+	"\x0eCustomCategory\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1a\n" +
+	"\bpriority\x18\x04 \x01(\x05R\bpriority\"B\n" +
+	"\fCategoryList\x122\n" +
+	"\n" +
+	"categories\x18\x01 \x03(\v2\x12.v1.CustomCategoryR\n" +
+	"categories\"\xdb\x02\n" +
 	"\rStreamMessage\x12*\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x16.v1.StreamMessage.TypeR\x04type\x12\x12\n" +
 	"\x04data\x18\x02 \x01(\fR\x04data\x12\x16\n" +
@@ -966,30 +1089,31 @@ const file_pkg_plugin_sdk_v1_plugin_proto_rawDesc = "" +
 	"\x04EXIT\x10\x05\x12\t\n" +
 	"\x05ERROR\x10\x06\x12\b\n" +
 	"\x04PING\x10\a\x12\b\n" +
-	"\x04PONG\x10\b2\xca\x02\n" +
+	"\x04PONG\x10\b2\xfe\x02\n" +
 	"\vGlidePlugin\x12,\n" +
 	"\vGetMetadata\x12\t.v1.Empty\x1a\x12.v1.PluginMetadata\x128\n" +
 	"\tConfigure\x12\x14.v1.ConfigureRequest\x1a\x15.v1.ConfigureResponse\x12*\n" +
 	"\fListCommands\x12\t.v1.Empty\x1a\x0f.v1.CommandList\x129\n" +
 	"\x0eExecuteCommand\x12\x12.v1.ExecuteRequest\x1a\x13.v1.ExecuteResponse\x12<\n" +
 	"\x10StartInteractive\x12\x11.v1.StreamMessage\x1a\x11.v1.StreamMessage(\x010\x01\x12.\n" +
-	"\x0fGetCapabilities\x12\t.v1.Empty\x1a\x10.v1.CapabilitiesB.Z,github.com/ivannovak/glide/pkg/plugin/sdk/v1b\x06proto3"
+	"\x0fGetCapabilities\x12\t.v1.Empty\x1a\x10.v1.Capabilities\x122\n" +
+	"\x13GetCustomCategories\x12\t.v1.Empty\x1a\x10.v1.CategoryListB.Z,github.com/ivannovak/glide/pkg/plugin/sdk/v1b\x06proto3"
 
 var (
-	file_pkg_plugin_sdk_v1_plugin_proto_rawDescOnce sync.Once
-	file_pkg_plugin_sdk_v1_plugin_proto_rawDescData []byte
+	file_plugin_proto_rawDescOnce sync.Once
+	file_plugin_proto_rawDescData []byte
 )
 
-func file_pkg_plugin_sdk_v1_plugin_proto_rawDescGZIP() []byte {
-	file_pkg_plugin_sdk_v1_plugin_proto_rawDescOnce.Do(func() {
-		file_pkg_plugin_sdk_v1_plugin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_pkg_plugin_sdk_v1_plugin_proto_rawDesc), len(file_pkg_plugin_sdk_v1_plugin_proto_rawDesc)))
+func file_plugin_proto_rawDescGZIP() []byte {
+	file_plugin_proto_rawDescOnce.Do(func() {
+		file_plugin_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_plugin_proto_rawDesc), len(file_plugin_proto_rawDesc)))
 	})
-	return file_pkg_plugin_sdk_v1_plugin_proto_rawDescData
+	return file_plugin_proto_rawDescData
 }
 
-var file_pkg_plugin_sdk_v1_plugin_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_pkg_plugin_sdk_v1_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
-var file_pkg_plugin_sdk_v1_plugin_proto_goTypes = []any{
+var file_plugin_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_plugin_proto_goTypes = []any{
 	(StreamMessage_Type)(0),   // 0: v1.StreamMessage.Type
 	(*Empty)(nil),             // 1: v1.Empty
 	(*PluginMetadata)(nil),    // 2: v1.PluginMetadata
@@ -1000,61 +1124,66 @@ var file_pkg_plugin_sdk_v1_plugin_proto_goTypes = []any{
 	(*ExecuteRequest)(nil),    // 7: v1.ExecuteRequest
 	(*ExecuteResponse)(nil),   // 8: v1.ExecuteResponse
 	(*Capabilities)(nil),      // 9: v1.Capabilities
-	(*StreamMessage)(nil),     // 10: v1.StreamMessage
-	nil,                       // 11: v1.PluginMetadata.ExtraEntry
-	nil,                       // 12: v1.ConfigureRequest.ConfigEntry
-	nil,                       // 13: v1.ExecuteRequest.FlagsEntry
-	nil,                       // 14: v1.ExecuteRequest.EnvEntry
-	nil,                       // 15: v1.ExecuteResponse.ExtraEntry
+	(*CustomCategory)(nil),    // 10: v1.CustomCategory
+	(*CategoryList)(nil),      // 11: v1.CategoryList
+	(*StreamMessage)(nil),     // 12: v1.StreamMessage
+	nil,                       // 13: v1.PluginMetadata.ExtraEntry
+	nil,                       // 14: v1.ConfigureRequest.ConfigEntry
+	nil,                       // 15: v1.ExecuteRequest.FlagsEntry
+	nil,                       // 16: v1.ExecuteRequest.EnvEntry
+	nil,                       // 17: v1.ExecuteResponse.ExtraEntry
 }
-var file_pkg_plugin_sdk_v1_plugin_proto_depIdxs = []int32{
-	11, // 0: v1.PluginMetadata.extra:type_name -> v1.PluginMetadata.ExtraEntry
+var file_plugin_proto_depIdxs = []int32{
+	13, // 0: v1.PluginMetadata.extra:type_name -> v1.PluginMetadata.ExtraEntry
 	3,  // 1: v1.CommandList.commands:type_name -> v1.CommandInfo
-	12, // 2: v1.ConfigureRequest.config:type_name -> v1.ConfigureRequest.ConfigEntry
-	13, // 3: v1.ExecuteRequest.flags:type_name -> v1.ExecuteRequest.FlagsEntry
-	14, // 4: v1.ExecuteRequest.env:type_name -> v1.ExecuteRequest.EnvEntry
-	15, // 5: v1.ExecuteResponse.extra:type_name -> v1.ExecuteResponse.ExtraEntry
-	0,  // 6: v1.StreamMessage.type:type_name -> v1.StreamMessage.Type
-	1,  // 7: v1.GlidePlugin.GetMetadata:input_type -> v1.Empty
-	5,  // 8: v1.GlidePlugin.Configure:input_type -> v1.ConfigureRequest
-	1,  // 9: v1.GlidePlugin.ListCommands:input_type -> v1.Empty
-	7,  // 10: v1.GlidePlugin.ExecuteCommand:input_type -> v1.ExecuteRequest
-	10, // 11: v1.GlidePlugin.StartInteractive:input_type -> v1.StreamMessage
-	1,  // 12: v1.GlidePlugin.GetCapabilities:input_type -> v1.Empty
-	2,  // 13: v1.GlidePlugin.GetMetadata:output_type -> v1.PluginMetadata
-	6,  // 14: v1.GlidePlugin.Configure:output_type -> v1.ConfigureResponse
-	4,  // 15: v1.GlidePlugin.ListCommands:output_type -> v1.CommandList
-	8,  // 16: v1.GlidePlugin.ExecuteCommand:output_type -> v1.ExecuteResponse
-	10, // 17: v1.GlidePlugin.StartInteractive:output_type -> v1.StreamMessage
-	9,  // 18: v1.GlidePlugin.GetCapabilities:output_type -> v1.Capabilities
-	13, // [13:19] is the sub-list for method output_type
-	7,  // [7:13] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	14, // 2: v1.ConfigureRequest.config:type_name -> v1.ConfigureRequest.ConfigEntry
+	15, // 3: v1.ExecuteRequest.flags:type_name -> v1.ExecuteRequest.FlagsEntry
+	16, // 4: v1.ExecuteRequest.env:type_name -> v1.ExecuteRequest.EnvEntry
+	17, // 5: v1.ExecuteResponse.extra:type_name -> v1.ExecuteResponse.ExtraEntry
+	10, // 6: v1.CategoryList.categories:type_name -> v1.CustomCategory
+	0,  // 7: v1.StreamMessage.type:type_name -> v1.StreamMessage.Type
+	1,  // 8: v1.GlidePlugin.GetMetadata:input_type -> v1.Empty
+	5,  // 9: v1.GlidePlugin.Configure:input_type -> v1.ConfigureRequest
+	1,  // 10: v1.GlidePlugin.ListCommands:input_type -> v1.Empty
+	7,  // 11: v1.GlidePlugin.ExecuteCommand:input_type -> v1.ExecuteRequest
+	12, // 12: v1.GlidePlugin.StartInteractive:input_type -> v1.StreamMessage
+	1,  // 13: v1.GlidePlugin.GetCapabilities:input_type -> v1.Empty
+	1,  // 14: v1.GlidePlugin.GetCustomCategories:input_type -> v1.Empty
+	2,  // 15: v1.GlidePlugin.GetMetadata:output_type -> v1.PluginMetadata
+	6,  // 16: v1.GlidePlugin.Configure:output_type -> v1.ConfigureResponse
+	4,  // 17: v1.GlidePlugin.ListCommands:output_type -> v1.CommandList
+	8,  // 18: v1.GlidePlugin.ExecuteCommand:output_type -> v1.ExecuteResponse
+	12, // 19: v1.GlidePlugin.StartInteractive:output_type -> v1.StreamMessage
+	9,  // 20: v1.GlidePlugin.GetCapabilities:output_type -> v1.Capabilities
+	11, // 21: v1.GlidePlugin.GetCustomCategories:output_type -> v1.CategoryList
+	15, // [15:22] is the sub-list for method output_type
+	8,  // [8:15] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
-func init() { file_pkg_plugin_sdk_v1_plugin_proto_init() }
-func file_pkg_plugin_sdk_v1_plugin_proto_init() {
-	if File_pkg_plugin_sdk_v1_plugin_proto != nil {
+func init() { file_plugin_proto_init() }
+func file_plugin_proto_init() {
+	if File_plugin_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pkg_plugin_sdk_v1_plugin_proto_rawDesc), len(file_pkg_plugin_sdk_v1_plugin_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plugin_proto_rawDesc), len(file_plugin_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_pkg_plugin_sdk_v1_plugin_proto_goTypes,
-		DependencyIndexes: file_pkg_plugin_sdk_v1_plugin_proto_depIdxs,
-		EnumInfos:         file_pkg_plugin_sdk_v1_plugin_proto_enumTypes,
-		MessageInfos:      file_pkg_plugin_sdk_v1_plugin_proto_msgTypes,
+		GoTypes:           file_plugin_proto_goTypes,
+		DependencyIndexes: file_plugin_proto_depIdxs,
+		EnumInfos:         file_plugin_proto_enumTypes,
+		MessageInfos:      file_plugin_proto_msgTypes,
 	}.Build()
-	File_pkg_plugin_sdk_v1_plugin_proto = out.File
-	file_pkg_plugin_sdk_v1_plugin_proto_goTypes = nil
-	file_pkg_plugin_sdk_v1_plugin_proto_depIdxs = nil
+	File_plugin_proto = out.File
+	file_plugin_proto_goTypes = nil
+	file_plugin_proto_depIdxs = nil
 }

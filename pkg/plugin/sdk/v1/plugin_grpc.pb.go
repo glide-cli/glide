@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: pkg/plugin/sdk/v1/plugin.proto
+// source: plugin.proto
 
 package v1
 
@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GlidePlugin_GetMetadata_FullMethodName      = "/v1.GlidePlugin/GetMetadata"
-	GlidePlugin_Configure_FullMethodName        = "/v1.GlidePlugin/Configure"
-	GlidePlugin_ListCommands_FullMethodName     = "/v1.GlidePlugin/ListCommands"
-	GlidePlugin_ExecuteCommand_FullMethodName   = "/v1.GlidePlugin/ExecuteCommand"
-	GlidePlugin_StartInteractive_FullMethodName = "/v1.GlidePlugin/StartInteractive"
-	GlidePlugin_GetCapabilities_FullMethodName  = "/v1.GlidePlugin/GetCapabilities"
+	GlidePlugin_GetMetadata_FullMethodName         = "/v1.GlidePlugin/GetMetadata"
+	GlidePlugin_Configure_FullMethodName           = "/v1.GlidePlugin/Configure"
+	GlidePlugin_ListCommands_FullMethodName        = "/v1.GlidePlugin/ListCommands"
+	GlidePlugin_ExecuteCommand_FullMethodName      = "/v1.GlidePlugin/ExecuteCommand"
+	GlidePlugin_StartInteractive_FullMethodName    = "/v1.GlidePlugin/StartInteractive"
+	GlidePlugin_GetCapabilities_FullMethodName     = "/v1.GlidePlugin/GetCapabilities"
+	GlidePlugin_GetCustomCategories_FullMethodName = "/v1.GlidePlugin/GetCustomCategories"
 )
 
 // GlidePluginClient is the client API for GlidePlugin service.
@@ -45,6 +46,8 @@ type GlidePluginClient interface {
 	StartInteractive(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamMessage, StreamMessage], error)
 	// Get required capabilities
 	GetCapabilities(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Capabilities, error)
+	// Get custom categories defined by this plugin
+	GetCustomCategories(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*CategoryList, error)
 }
 
 type glidePluginClient struct {
@@ -118,6 +121,16 @@ func (c *glidePluginClient) GetCapabilities(ctx context.Context, in *Empty, opts
 	return out, nil
 }
 
+func (c *glidePluginClient) GetCustomCategories(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*CategoryList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CategoryList)
+	err := c.cc.Invoke(ctx, GlidePlugin_GetCustomCategories_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GlidePluginServer is the server API for GlidePlugin service.
 // All implementations must embed UnimplementedGlidePluginServer
 // for forward compatibility.
@@ -136,6 +149,8 @@ type GlidePluginServer interface {
 	StartInteractive(grpc.BidiStreamingServer[StreamMessage, StreamMessage]) error
 	// Get required capabilities
 	GetCapabilities(context.Context, *Empty) (*Capabilities, error)
+	// Get custom categories defined by this plugin
+	GetCustomCategories(context.Context, *Empty) (*CategoryList, error)
 	mustEmbedUnimplementedGlidePluginServer()
 }
 
@@ -163,6 +178,9 @@ func (UnimplementedGlidePluginServer) StartInteractive(grpc.BidiStreamingServer[
 }
 func (UnimplementedGlidePluginServer) GetCapabilities(context.Context, *Empty) (*Capabilities, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCapabilities not implemented")
+}
+func (UnimplementedGlidePluginServer) GetCustomCategories(context.Context, *Empty) (*CategoryList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCustomCategories not implemented")
 }
 func (UnimplementedGlidePluginServer) mustEmbedUnimplementedGlidePluginServer() {}
 func (UnimplementedGlidePluginServer) testEmbeddedByValue()                     {}
@@ -282,6 +300,24 @@ func _GlidePlugin_GetCapabilities_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GlidePlugin_GetCustomCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GlidePluginServer).GetCustomCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GlidePlugin_GetCustomCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GlidePluginServer).GetCustomCategories(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GlidePlugin_ServiceDesc is the grpc.ServiceDesc for GlidePlugin service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -309,6 +345,10 @@ var GlidePlugin_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetCapabilities",
 			Handler:    _GlidePlugin_GetCapabilities_Handler,
 		},
+		{
+			MethodName: "GetCustomCategories",
+			Handler:    _GlidePlugin_GetCustomCategories_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
@@ -318,5 +358,5 @@ var GlidePlugin_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "pkg/plugin/sdk/v1/plugin.proto",
+	Metadata: "plugin.proto",
 }

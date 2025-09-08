@@ -23,6 +23,9 @@ service GlidePlugin {
   
   // Get required capabilities
   rpc GetCapabilities(Empty) returns (Capabilities);
+  
+  // Get custom categories defined by this plugin
+  rpc GetCustomCategories(Empty) returns (CategoryList);
 }
 
 // Empty message for RPC calls with no parameters
@@ -94,6 +97,19 @@ message Capabilities {
   repeated string required_commands = 5;
   repeated string required_paths = 6;
   repeated string required_env_vars = 7;
+}
+
+// CustomCategory allows plugins to define their own command categories
+message CustomCategory {
+  string id = 1;          // Unique identifier (e.g., "infrastructure")
+  string name = 2;        // Display name (e.g., "Infrastructure Management")
+  string description = 3; // Category description
+  int32 priority = 4;     // Display priority (lower = higher priority)
+}
+
+// CategoryList contains custom categories defined by a plugin
+message CategoryList {
+  repeated CustomCategory categories = 1;
 }
 
 message StreamMessage {

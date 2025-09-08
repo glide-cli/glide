@@ -370,6 +370,9 @@ type CommandEntry struct {
 
 // ShowHelp displays the categorized help output
 func (hc *HelpCommand) ShowHelp(rootCmd *cobra.Command) error {
+	// Load custom categories from plugins
+	hc.loadPluginCategories()
+
 	// Header
 	headerColor := color.New(color.FgWhite, color.Bold)
 	headerColor.Printf("\n%s", rootCmd.Use)
@@ -689,6 +692,21 @@ func (hc *HelpCommand) shouldShowCategory(category string) bool {
 	default:
 		// Show all other categories
 		return true
+	}
+}
+
+// loadPluginCategories loads custom categories from plugins and adds them to the global Categories map
+func (hc *HelpCommand) loadPluginCategories() {
+	// Get custom categories from plugins
+	customCategories := plugin.GetGlobalPluginCategories()
+	for _, cat := range customCategories {
+		// Add to the global Categories map
+		Categories[cat.Id] = CategoryInfo{
+			Name:        cat.Name,
+			Description: cat.Description,
+			Priority:    int(cat.Priority),
+			Color:       color.New(color.FgYellow, color.Bold), // Yellow bold for custom categories
+		}
 	}
 }
 

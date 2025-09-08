@@ -69,13 +69,56 @@ func (p *MyPlugin) ListCommands(ctx context.Context, _ *sdk.Empty) (*sdk.Command
             {
                 Name:        "mycommand",
                 Description: "Description of my command",
-                Category:    "docker", // Assign to Docker Management category
+                Category:    sdk.CategoryDocker, // Use SDK constants
                 Aliases:     []string{"mc"},
             },
         },
     }, nil
 }
 ```
+
+### Defining Custom Categories
+
+Plugins can define their own categories with custom display properties:
+
+```go
+func (p *MyPlugin) GetCustomCategories(ctx context.Context, _ *sdk.Empty) (*sdk.CategoryList, error) {
+    return &sdk.CategoryList{
+        Categories: []*sdk.CustomCategory{
+            {
+                Id:          "infrastructure",
+                Name:        "Infrastructure Management",
+                Description: "AWS, Terraform, and cloud resources",
+                Priority:    110, // 100-199 recommended for plugins
+            },
+            {
+                Id:          "monitoring",
+                Name:        "Monitoring & Observability",
+                Description: "Metrics, logs, and alerting",
+                Priority:    120,
+            },
+        },
+    }, nil
+}
+
+// Then use your custom category in commands:
+func (p *MyPlugin) ListCommands(ctx context.Context, _ *sdk.Empty) (*sdk.CommandList, error) {
+    return &sdk.CommandList{
+        Commands: []*sdk.CommandInfo{
+            {
+                Name:        "terraform-plan",
+                Description: "Run terraform plan",
+                Category:    "infrastructure", // Use custom category ID
+            },
+        },
+    }, nil
+}
+```
+
+#### Priority Ranges
+- **0-99**: Reserved for core system categories
+- **100-199**: Recommended for plugin-defined categories
+- **200+**: Low priority/miscellaneous categories
 
 ## Command Registration
 
