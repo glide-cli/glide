@@ -177,10 +177,44 @@ func (p *MyPlugin) StartInteractive(stream sdk.GlidePlugin_StartInteractiveServe
 
 ## Plugin Installation
 
-Plugins are installed by placing the binary in one of these locations:
-- User plugins: `~/.glide/plugins/`
-- System plugins: `/usr/local/lib/glide/plugins/`
-- Project plugins: `./.glide/plugins/` (when project-local discovery is enabled)
+### Plugin Discovery Locations
+
+Glide searches for plugins in the following locations (in order of precedence):
+
+1. **User plugins**: `~/.glide/plugins/`
+   - Global plugins available across all projects
+   
+2. **Ancestor directories**: `.glide/plugins/` in parent directories
+   - Walks up from current directory to home or root
+   - Most specific (deepest) directories take precedence
+   - Enables project-wide plugins shared across subdirectories
+   
+3. **Current directory**: `./.glide/plugins/`
+   - Directory-specific plugins
+   
+4. **System plugins**: `/usr/local/lib/glide/plugins/`
+   - System-wide plugins (if directory exists)
+
+### Ancestor Directory Discovery
+
+When working in a subdirectory of a project, Glide automatically discovers plugins from parent directories:
+
+```
+project/
+├── .glide/plugins/          # Available from anywhere in project/
+│   └── glide-plugin-project
+├── frontend/
+│   ├── .glide/plugins/      # Available from frontend/ and subdirs
+│   │   └── glide-plugin-ui
+│   └── components/          # Can use both project and ui plugins
+└── backend/
+    └── api/                 # Can use project plugin
+```
+
+In the above structure:
+- Working from `frontend/components/` finds plugins from both `frontend/.glide/plugins/` and `project/.glide/plugins/`
+- Working from `backend/api/` finds plugins from `project/.glide/plugins/`
+- More specific plugins (deeper in tree) override less specific ones with the same name
 
 ### Naming Convention
 Plugin binaries should follow the naming pattern: `glide-plugin-{name}`

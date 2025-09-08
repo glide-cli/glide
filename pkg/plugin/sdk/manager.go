@@ -87,7 +87,15 @@ func DefaultConfig() *ManagerConfig {
 	// Build plugin directories list
 	pluginDirs := []string{
 		filepath.Join(home, ".glide", "plugins"), // Global plugins
-		"./.glide/plugins",                       // Project-local plugins
+	}
+
+	// Add all ancestor .glide/plugins directories up to root or home
+	ancestorDirs := findAncestorPluginDirs()
+	pluginDirs = append(pluginDirs, ancestorDirs...)
+
+	// Add current directory .glide/plugins if not already included
+	if !contains(pluginDirs, "./.glide/plugins") {
+		pluginDirs = append(pluginDirs, "./.glide/plugins")
 	}
 
 	// Add system-wide plugin directory if it exists
@@ -455,4 +463,51 @@ func (d *Discoverer) Scan() ([]*PluginInfo, error) {
 	}
 
 	return plugins, nil
+}
+
+// findAncestorPluginDirs walks up the directory tree looking for .glide/plugins directories
+func findAncestorPluginDirs() []string {
+	var dirs []string
+
+	// Get current working directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		return dirs
+	}
+
+	// Get home directory to stop searching there
+	home, _ := os.UserHomeDir()
+
+	// Walk up the directory tree
+	current := cwd
+	for {
+		// Check if we've reached root or home directory
+		if current == "/" || current == home || current == filepath.Dir(current) {
+			break
+		}
+
+		// Check if .glide/plugins exists in this directory
+		pluginDir := filepath.Join(current, ".glide", "plugins")
+		if info, err := os.Stat(pluginDir); err == nil && info.IsDir() {
+			dirs = append(dirs, pluginDir)
+		}
+
+		// Move up to parent directory
+		current = filepath.Dir(current)
+	}
+
+	// Don't reverse - the order is already correct with most specific (deepest) first
+	// as we walk up from the current directory
+
+	return dirs
+}
+
+// contains checks if a string slice contains a value
+func contains(slice []string, value string) bool {
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }
