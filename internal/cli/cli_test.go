@@ -80,10 +80,10 @@ func TestCLIAddLocalCommands(t *testing.T) {
 	// Verify some expected commands
 	assert.Contains(t, commandNames, "context")
 	assert.Contains(t, commandNames, "config")
-	assert.Contains(t, commandNames, "test")
-	assert.Contains(t, commandNames, "up")
-	assert.Contains(t, commandNames, "down")
-	assert.Contains(t, commandNames, "status")
+	assert.Contains(t, commandNames, "version")
+	assert.Contains(t, commandNames, "setup")
+	assert.Contains(t, commandNames, "plugins")
+	// Docker and dev commands have been moved to plugins
 }
 
 func TestCLIShowContext(t *testing.T) {

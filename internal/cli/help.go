@@ -493,7 +493,7 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 			if nameLen > maxLen {
 				maxLen = nameLen
 			}
-			
+
 			if len(cmd.Aliases) > 0 {
 				aliasLen := len(strings.Join(cmd.Aliases, ", "))
 				if aliasLen > maxAliasLen {
@@ -501,7 +501,7 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 				}
 			}
 		}
-		
+
 		// Add some padding if there are no aliases in this category
 		if maxAliasLen == 0 {
 			maxAliasLen = 1
@@ -511,12 +511,12 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 		commandColor := color.New(color.FgGreen)
 		aliasColor := color.New(color.Faint)
 		faintGray := color.New(color.Faint)
-		
+
 		for _, cmd := range commands {
 			// Print command name in green
 			fmt.Print("  ")
 			commandColor.Printf("%-*s", maxLen, cmd.Name)
-			
+
 			// Print aliases in faint gray (if any)
 			if len(cmd.Aliases) > 0 {
 				aliasStr := strings.Join(cmd.Aliases, ", ")
@@ -526,7 +526,7 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 				fmt.Print("  ")
 				fmt.Printf("%-*s", maxAliasLen, "") // Empty space for alignment
 			}
-			
+
 			// Print description
 			fmt.Printf("  %s\n", cmd.Description)
 
@@ -535,7 +535,7 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 				pluginColor := color.New(color.Faint, color.Italic)
 				fmt.Printf("  %-*s  %-*s  %s\n", maxLen, "", maxAliasLen, "", pluginColor.Sprintf("from %s plugin", cmd.PluginName))
 			}
-			
+
 			// Show plugin subcommands if this is a plugin
 			if category == "plugin" {
 				subcommands := hc.getPluginSubcommands(rootCmd, cmd.Name)
@@ -550,7 +550,7 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 						}
 						// Print subcommand name in normal green
 						commandColor.Printf("%-*s", maxLen-3, subcmd.Name)
-						
+
 						if len(subcmd.Aliases) > 0 {
 							fmt.Print("  ")
 							aliasColor.Printf("%-*s", maxAliasLen, strings.Join(subcmd.Aliases, ", "))
@@ -586,7 +586,6 @@ func (hc *HelpCommand) showHelp(rootCmd *cobra.Command) error {
 
 	return nil
 }
-
 
 // getPluginCommands retrieves commands from loaded plugins
 func (hc *HelpCommand) getPluginCommands() []CommandEntry {
@@ -637,7 +636,7 @@ type SubcommandEntry struct {
 // getPluginSubcommands retrieves subcommands for a specific plugin
 func (hc *HelpCommand) getPluginSubcommands(rootCmd *cobra.Command, pluginName string) []SubcommandEntry {
 	var subcommands []SubcommandEntry
-	
+
 	// Find the plugin command
 	for _, cmd := range rootCmd.Commands() {
 		if cmd.Name() == pluginName {
@@ -654,12 +653,12 @@ func (hc *HelpCommand) getPluginSubcommands(rootCmd *cobra.Command, pluginName s
 			break
 		}
 	}
-	
+
 	// Sort subcommands alphabetically
 	sort.Slice(subcommands, func(i, j int) bool {
 		return subcommands[i].Name < subcommands[j].Name
 	})
-	
+
 	return subcommands
 }
 

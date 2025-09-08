@@ -59,7 +59,7 @@ func (r *RuntimePluginIntegration) addPluginCommands(rootCmd *cobra.Command, plu
 
 	// Get metadata
 	metadata := plugin.Metadata
-	
+
 	// Check if plugin wants global registration (not namespaced)
 	// Default to namespaced (true) if not specified
 	namespaced := metadata.Namespaced || metadata.Namespaced == false && metadata.Namespaced
@@ -81,16 +81,16 @@ func (r *RuntimePluginIntegration) addPluginCommands(rootCmd *cobra.Command, plu
 			}
 			pluginCommand.Annotations["plugin"] = plugin.Name
 			pluginCommand.Annotations["global_plugin"] = "true"
-			
+
 			// Check for conflicts
 			for _, existing := range rootCmd.Commands() {
 				if existing.Name() == pluginCommand.Name() {
-					fmt.Fprintf(os.Stderr, "Warning: plugin %s command '%s' conflicts with existing command, skipping\n", 
+					fmt.Fprintf(os.Stderr, "Warning: plugin %s command '%s' conflicts with existing command, skipping\n",
 						plugin.Name, pluginCommand.Name())
 					continue
 				}
 			}
-			
+
 			rootCmd.AddCommand(pluginCommand)
 		}
 		return nil
@@ -213,10 +213,10 @@ func (r *RuntimePluginIntegration) createPluginCommand(plugin *sdk.LoadedPlugin,
 
 	// Add annotations
 	cmd.Annotations = make(map[string]string)
-	
+
 	// Mark as a plugin command
 	cmd.Annotations["plugin"] = plugin.Name
-	
+
 	// Add category - default to "plugin" if not specified
 	if cmdInfo.Category != "" {
 		cmd.Annotations["category"] = cmdInfo.Category

@@ -136,13 +136,13 @@ func (r *Registry) CreateAll() []*cobra.Command {
 			if len(meta.Aliases) > 0 {
 				cmd.Aliases = meta.Aliases
 			}
-			
+
 			// Store category in annotations for help system
 			if cmd.Annotations == nil {
 				cmd.Annotations = make(map[string]string)
 			}
 			cmd.Annotations["category"] = string(meta.Category)
-			
+
 			// Mark hidden commands
 			if meta.Hidden {
 				cmd.Hidden = true

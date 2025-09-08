@@ -106,7 +106,7 @@ type CategoryDefinition struct {
 Phase 1: Update category priorities to use magnitude-based spacing (COMPLETED)
 Phase 2: Implement project-local plugin discovery (COMPLETED)
 Phase 3: Add namespaced vs global registration support (COMPLETED)
-Phase 4: Move project-specific commands to plugins (PENDING)
+Phase 4: Move project-specific commands to plugins (COMPLETED)
 
 ## Alternatives Considered
 

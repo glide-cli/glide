@@ -25,18 +25,16 @@ func TestCLI_AliasIntegration(t *testing.T) {
 	// Add local commands which should include aliases
 	cli.AddLocalCommands(rootCmd)
 
-	// Test that commands exist with their aliases
-	artisanCmd := findCommand(rootCmd, "artisan")
-	assert.NotNil(t, artisanCmd)
-	assert.Contains(t, artisanCmd.Aliases, "a")
+	// Test that core commands exist with their aliases
+	// Note: Docker and dev commands have been moved to plugins
+	versionCmd := findCommand(rootCmd, "version")
+	assert.NotNil(t, versionCmd)
 
-	composerCmd := findCommand(rootCmd, "composer")
-	assert.NotNil(t, composerCmd)
-	assert.Contains(t, composerCmd.Aliases, "c")
+	setupCmd := findCommand(rootCmd, "setup")
+	assert.NotNil(t, setupCmd)
 
-	testCmd := findCommand(rootCmd, "test")
-	assert.NotNil(t, testCmd)
-	assert.Contains(t, testCmd.Aliases, "t")
+	pluginsCmd := findCommand(rootCmd, "plugins")
+	assert.NotNil(t, pluginsCmd)
 }
 
 func TestCLI_AliasExecution(t *testing.T) {
@@ -129,31 +127,18 @@ func TestBuilder_RegisteredAliases(t *testing.T) {
 	application := app.NewApplication()
 	builder := NewBuilder(application)
 
-	// Check that artisan has alias 'a'
-	meta, exists := builder.registry.GetMetadata("artisan")
+	// Check that self-update has aliases 'update' and 'upgrade'
+	meta, exists := builder.registry.GetMetadata("self-update")
 	assert.True(t, exists)
-	assert.Contains(t, meta.Aliases, "a")
+	assert.Contains(t, meta.Aliases, "update")
+	assert.Contains(t, meta.Aliases, "upgrade")
 
-	// Check that composer has alias 'c'
-	meta, exists = builder.registry.GetMetadata("composer")
-	assert.True(t, exists)
-	assert.Contains(t, meta.Aliases, "c")
-
-	// Check that test has alias 't'
-	meta, exists = builder.registry.GetMetadata("test")
-	assert.True(t, exists)
-	assert.Contains(t, meta.Aliases, "t")
-
-	// Verify aliases resolve correctly
-	factory, exists := builder.registry.Get("a")
+	// Verify self-update aliases resolve correctly
+	factory, exists := builder.registry.Get("update")
 	assert.True(t, exists)
 	assert.NotNil(t, factory)
 
-	factory, exists = builder.registry.Get("c")
-	assert.True(t, exists)
-	assert.NotNil(t, factory)
-
-	factory, exists = builder.registry.Get("t")
+	factory, exists = builder.registry.Get("upgrade")
 	assert.True(t, exists)
 	assert.NotNil(t, factory)
 }

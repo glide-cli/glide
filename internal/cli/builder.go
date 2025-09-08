@@ -97,6 +97,7 @@ func (b *Builder) registerCommands() {
 		Name:        "self-update",
 		Category:    CategoryCore,
 		Description: "Update Glide CLI to the latest version",
+		Aliases:     []string{"update", "upgrade"},
 	})
 }
 

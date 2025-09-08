@@ -83,18 +83,18 @@ type ManagerConfig struct {
 // DefaultConfig returns default manager configuration
 func DefaultConfig() *ManagerConfig {
 	home, _ := os.UserHomeDir()
-	
+
 	// Build plugin directories list
 	pluginDirs := []string{
 		filepath.Join(home, ".glide", "plugins"), // Global plugins
-		"./.glide/plugins",                        // Project-local plugins
+		"./.glide/plugins",                       // Project-local plugins
 	}
-	
+
 	// Add system-wide plugin directory if it exists
 	if _, err := os.Stat("/usr/local/lib/glide/plugins"); err == nil {
 		pluginDirs = append(pluginDirs, "/usr/local/lib/glide/plugins")
 	}
-	
+
 	return &ManagerConfig{
 		PluginDirs:     pluginDirs,
 		CacheTimeout:   5 * time.Minute,
@@ -408,7 +408,7 @@ func (d *Discoverer) Scan() ([]*PluginInfo, error) {
 			home, _ := os.UserHomeDir()
 			dir = filepath.Join(home, dir[2:])
 		}
-		
+
 		// Handle relative paths (like ./.glide/plugins)
 		if !filepath.IsAbs(dir) {
 			cwd, err := os.Getwd()
@@ -440,13 +440,13 @@ func (d *Discoverer) Scan() ([]*PluginInfo, error) {
 			}
 
 			name := strings.TrimPrefix(filepath.Base(path), "glide-plugin-")
-			
+
 			// Skip if we've already seen this plugin (project-local takes precedence)
 			if seen[name] {
 				continue
 			}
 			seen[name] = true
-			
+
 			plugins = append(plugins, &PluginInfo{
 				Name: name,
 				Path: path,

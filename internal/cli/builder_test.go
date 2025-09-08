@@ -44,10 +44,11 @@ func TestBuilder_RegisterCommands(t *testing.T) {
 	assert.True(t, exists)
 	_, exists = registry.Get("help")
 	assert.True(t, exists)
-	_, exists = registry.Get("up")
+	_, exists = registry.Get("plugins")
 	assert.True(t, exists)
-	_, exists = registry.Get("down")
+	_, exists = registry.Get("self-update")
 	assert.True(t, exists)
+	// Docker and dev commands have been moved to plugins
 }
 
 func TestBuilder_GetRegistry(t *testing.T) {
@@ -67,26 +68,20 @@ func TestBuilder_CommandCategories(t *testing.T) {
 
 	// Check core commands
 	coreCommands := registry.GetByCategory(CategoryCore)
-	assert.Contains(t, coreCommands, "setup")
-	assert.Contains(t, coreCommands, "completion")
+	assert.Contains(t, coreCommands, "plugins")
 	assert.Contains(t, coreCommands, "version")
-	assert.Contains(t, coreCommands, "global")
 	assert.Contains(t, coreCommands, "self-update")
 
-	// Check docker commands
-	dockerCommands := registry.GetByCategory(CategoryDocker)
-	assert.Contains(t, dockerCommands, "up")
-	assert.Contains(t, dockerCommands, "down")
-	assert.Contains(t, dockerCommands, "status")
-	assert.Contains(t, dockerCommands, "logs")
-	assert.Contains(t, dockerCommands, "shell")
+	// Check setup commands
+	setupCommands := registry.GetByCategory(CategorySetup)
+	assert.Contains(t, setupCommands, "setup")
+	assert.Contains(t, setupCommands, "completion")
 
-	// Check developer commands
-	developerCommands := registry.GetByCategory(CategoryDeveloper)
-	assert.Contains(t, developerCommands, "test")
-	assert.Contains(t, developerCommands, "artisan")
-	assert.Contains(t, developerCommands, "composer")
-	assert.Contains(t, developerCommands, "lint")
+	// Check global commands
+	globalCommands := registry.GetByCategory(CategoryGlobal)
+	assert.Contains(t, globalCommands, "global")
+
+	// Docker, Testing, and Developer commands have been moved to plugins
 }
 
 func TestBuilder_CommandMetadata(t *testing.T) {
@@ -99,7 +94,7 @@ func TestBuilder_CommandMetadata(t *testing.T) {
 	metadata, exists := registry.GetMetadata("setup")
 	assert.True(t, exists)
 	assert.Equal(t, "setup", metadata.Name)
-	assert.Equal(t, CategoryCore, metadata.Category)
+	assert.Equal(t, CategorySetup, metadata.Category)
 	assert.Equal(t, "Initial setup and configuration", metadata.Description)
 
 	// Check config command metadata (hidden debug command)
@@ -124,6 +119,5 @@ func TestBuilder_CreateCommands(t *testing.T) {
 	coreCommands := registry.CreateByCategory(CategoryCore)
 	assert.True(t, len(coreCommands) > 0)
 
-	dockerCommands := registry.CreateByCategory(CategoryDocker)
-	assert.True(t, len(dockerCommands) > 0)
+	// Docker commands have been moved to plugins
 }
