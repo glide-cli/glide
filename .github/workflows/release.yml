@@ -10,6 +10,9 @@ on:
         description: 'Version tag (e.g., v1.0.0)'
         required: true
         type: string
+  # Triggered by semantic-release after it creates a tag
+  release:
+    types: [published]
 
 env:
   GO_VERSION: '1.24'
@@ -136,18 +139,24 @@ jobs:
     - name: Generate release notes
       id: release_notes
       run: |
-        # Generate changelog since last release
-        PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-        if [[ -n "$PREV_TAG" ]]; then
-          echo "## What's Changed" > RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
+        # Check if CHANGELOG.md exists (created by semantic-release)
+        if [[ -f "CHANGELOG.md" ]]; then
+          # Extract the latest release notes from CHANGELOG.md
+          awk '/^## \[?[0-9]+\.[0-9]+\.[0-9]+/,/^## \[?[0-9]+\.[0-9]+\.[0-9]+/{if (NR>1 && /^## \[?[0-9]+\.[0-9]+\.[0-9]+/) exit; print}' CHANGELOG.md > RELEASE_NOTES.md
         else
-          echo "## Initial Release" > RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "This is the first release of Glide CLI." >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
+          # Fallback to git log if no CHANGELOG.md
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [[ -n "$PREV_TAG" ]]; then
+            echo "## What's Changed" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+          else
+            echo "## Initial Release" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "This is the first release of Glide CLI." >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+          fi
         fi
         
         # Add installation instructions

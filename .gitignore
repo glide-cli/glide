@@ -50,3 +50,6 @@ __debug_bin
 
 # Log files
 *.log
+
+# Node modules for semantic-release
+node_modules/
