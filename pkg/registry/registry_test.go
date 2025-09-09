@@ -58,7 +58,7 @@ func TestRegistry_Get(t *testing.T) {
 	}
 
 	// Test get non-existent
-	val, ok = r.Get("nonexistent")
+	_, ok = r.Get("nonexistent")
 	if ok {
 		t.Error("expected false for non-existent item")
 	}
@@ -164,7 +164,7 @@ func TestRegistry_ResolveAlias(t *testing.T) {
 		t.Errorf("expected item, got %v, %v", canonical, ok)
 	}
 
-	canonical, ok = r.ResolveAlias("item")
+	_, ok = r.ResolveAlias("item")
 	if ok {
 		t.Error("expected false for non-alias")
 	}

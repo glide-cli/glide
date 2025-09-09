@@ -63,7 +63,7 @@ func TestBuild(t *testing.T) {
 	if execCmd.Dir != "/tmp" {
 		t.Errorf("Expected working dir to be /tmp, got %s", execCmd.Dir)
 	}
-	if execCmd.Env == nil || len(execCmd.Env) == 0 {
+	if len(execCmd.Env) == 0 {
 		t.Error("Expected environment to be set")
 	}
 }
