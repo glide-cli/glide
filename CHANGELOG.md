@@ -1,3 +1,10 @@
+## [0.9.0](https://github.com/ivannovak/glide/compare/v0.8.1...v0.9.0) (2025-09-10)
+
+
+### Features
+
+* **plugin:** Implement interactive command support with bidirectional streaming ([#6](https://github.com/ivannovak/glide/issues/6)) ([c95d060](https://github.com/ivannovak/glide/commit/c95d060f3c8d3167635e4c52d46c10d67c110b81))
+
 ## [0.8.1](https://github.com/ivannovak/glide/compare/v0.8.0...v0.8.1) (2025-09-10)
 
 
