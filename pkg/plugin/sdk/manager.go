@@ -361,13 +361,13 @@ func (m *Manager) ExecuteCommand(pluginName, command string, args []string) erro
 func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args []string) error {
 	// Create context for the interactive session
 	ctx := context.Background()
-	
+
 	// Start the interactive stream with the plugin
 	stream, err := plugin.Plugin.StartInteractive(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to start interactive session: %w", err)
 	}
-	
+
 	// Send the command name as the first message so the plugin knows which command to execute
 	// Use a special message type or format to indicate this is the command routing message
 	if err := stream.Send(&v1.StreamMessage{
@@ -376,10 +376,10 @@ func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args 
 	}); err != nil {
 		return fmt.Errorf("failed to send command name: %w", err)
 	}
-	
+
 	// Create channels for communication
 	errCh := make(chan error, 3)
-	
+
 	// Handle stdin forwarding to the plugin
 	go func() {
 		buf := make([]byte, 4096)
@@ -391,7 +391,7 @@ func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args 
 				}
 				return
 			}
-			
+
 			if err := stream.Send(&v1.StreamMessage{
 				Type: v1.StreamMessage_STDIN,
 				Data: buf[:n],
@@ -401,7 +401,7 @@ func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args 
 			}
 		}
 	}()
-	
+
 	// Handle output from the plugin
 	go func() {
 		for {
@@ -414,7 +414,7 @@ func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args 
 				errCh <- fmt.Errorf("stream recv error: %w", err)
 				return
 			}
-			
+
 			switch msg.Type {
 			case v1.StreamMessage_STDOUT:
 				os.Stdout.Write(msg.Data)
@@ -433,12 +433,12 @@ func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args 
 			}
 		}
 	}()
-	
+
 	// Handle signals (Ctrl+C, etc.)
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(sigCh)
-	
+
 	go func() {
 		for sig := range sigCh {
 			var signalStr string
@@ -450,7 +450,7 @@ func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args 
 			default:
 				continue
 			}
-			
+
 			if err := stream.Send(&v1.StreamMessage{
 				Type:   v1.StreamMessage_SIGNAL,
 				Signal: signalStr,
@@ -458,14 +458,14 @@ func (m *Manager) ExecuteInteractive(plugin *LoadedPlugin, command string, args 
 				// Log error but don't fail the session
 				continue
 			}
-			
+
 			if sig == syscall.SIGTERM {
 				errCh <- nil
 				return
 			}
 		}
 	}()
-	
+
 	// Wait for completion
 	return <-errCh
 }
