@@ -1,3 +1,5 @@
+// +build ignore
+
 // Glide Plugin Boilerplate
 // This is a template for creating your own Glide runtime plugin.
 //
