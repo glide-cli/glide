@@ -15,9 +15,9 @@ import (
 // MockStream implements GlidePlugin_StartInteractiveServer for testing
 type MockStream struct {
 	mock.Mock
-	sentMessages   []*StreamMessage
-	receiveQueue   []*StreamMessage
-	receiveIndex   int
+	sentMessages []*StreamMessage
+	receiveQueue []*StreamMessage
+	receiveIndex int
 }
 
 func NewMockStream() *MockStream {
@@ -40,11 +40,11 @@ func (m *MockStream) Recv() (*StreamMessage, error) {
 		m.receiveIndex++
 		return msg, nil
 	}
-	
+
 	// If queue is empty and mock expectations are set, use them
 	if len(m.ExpectedCalls) > 0 {
 		args := m.Called()
-		
+
 		// Check if we have both return values
 		if len(args) >= 2 {
 			if args.Get(0) != nil {
@@ -53,7 +53,7 @@ func (m *MockStream) Recv() (*StreamMessage, error) {
 			return nil, args.Error(1)
 		}
 	}
-	
+
 	return nil, io.EOF
 }
 
@@ -63,12 +63,12 @@ func (m *MockStream) AddToReceiveQueue(msg *StreamMessage) {
 }
 
 // Implement other required methods
-func (m *MockStream) SetHeader(metadata.MD) error { return nil }
+func (m *MockStream) SetHeader(metadata.MD) error  { return nil }
 func (m *MockStream) SendHeader(metadata.MD) error { return nil }
-func (m *MockStream) SetTrailer(metadata.MD) {}
-func (m *MockStream) Context() context.Context { return context.Background() }
-func (m *MockStream) SendMsg(interface{}) error { return nil }
-func (m *MockStream) RecvMsg(interface{}) error { return nil }
+func (m *MockStream) SetTrailer(metadata.MD)       {}
+func (m *MockStream) Context() context.Context     { return context.Background() }
+func (m *MockStream) SendMsg(interface{}) error    { return nil }
+func (m *MockStream) RecvMsg(interface{}) error    { return nil }
 
 // TestBasePlugin_Metadata tests plugin metadata handling
 func TestBasePlugin_Metadata(t *testing.T) {
@@ -82,7 +82,7 @@ func TestBasePlugin_Metadata(t *testing.T) {
 	}
 
 	plugin := NewBasePlugin(metadata)
-	
+
 	// Test GetMetadata
 	result, err := plugin.GetMetadata(context.Background(), &Empty{})
 	require.NoError(t, err)
@@ -244,14 +244,14 @@ func TestBasePlugin_StartInteractive(t *testing.T) {
 		nil,
 		func(stream GlidePlugin_StartInteractiveServer) error {
 			interactiveCalled = true
-			
+
 			// Verify we can send a message
 			err := stream.Send(&StreamMessage{
 				Type: StreamMessage_STDOUT,
 				Data: []byte("Interactive session started"),
 			})
 			assert.NoError(t, err)
-			
+
 			return nil
 		},
 	)
@@ -260,22 +260,22 @@ func TestBasePlugin_StartInteractive(t *testing.T) {
 
 	// Create mock stream
 	stream := NewMockStream()
-	
+
 	// Set up the initial message with command name
 	stream.On("Recv").Return(&StreamMessage{
 		Type: StreamMessage_STDIN,
 		Data: []byte("shell"),
 	}, nil).Once()
-	
+
 	// Allow Send to work
 	stream.On("Send", mock.Anything).Return(nil)
 
 	// Call StartInteractive
 	err := plugin.StartInteractive(stream)
-	
+
 	require.NoError(t, err)
 	assert.True(t, interactiveCalled)
-	
+
 	// Verify the message was sent
 	assert.Len(t, stream.sentMessages, 1)
 	assert.Equal(t, StreamMessage_STDOUT, stream.sentMessages[0].Type)
@@ -289,7 +289,7 @@ func TestBasePlugin_StartInteractive_NoCommandName(t *testing.T) {
 	})
 
 	stream := NewMockStream()
-	
+
 	// Send empty message
 	stream.On("Recv").Return(&StreamMessage{
 		Type: StreamMessage_STDIN,
@@ -297,7 +297,7 @@ func TestBasePlugin_StartInteractive_NoCommandName(t *testing.T) {
 	}, nil).Once()
 
 	err := plugin.StartInteractive(stream)
-	
+
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "no command specified")
 }
@@ -309,7 +309,7 @@ func TestBasePlugin_StartInteractive_UnknownCommand(t *testing.T) {
 	})
 
 	stream := NewMockStream()
-	
+
 	// Send unknown command name
 	stream.On("Recv").Return(&StreamMessage{
 		Type: StreamMessage_STDIN,
@@ -317,7 +317,7 @@ func TestBasePlugin_StartInteractive_UnknownCommand(t *testing.T) {
 	}, nil).Once()
 
 	err := plugin.StartInteractive(stream)
-	
+
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "unknown command")
 }
@@ -342,7 +342,7 @@ func TestBasePlugin_StartInteractive_NonInteractiveCommand(t *testing.T) {
 	plugin.RegisterCommand("simple-cmd", cmd)
 
 	stream := NewMockStream()
-	
+
 	// Try to use it interactively
 	stream.On("Recv").Return(&StreamMessage{
 		Type: StreamMessage_STDIN,
@@ -350,7 +350,7 @@ func TestBasePlugin_StartInteractive_NonInteractiveCommand(t *testing.T) {
 	}, nil).Once()
 
 	err := plugin.StartInteractive(stream)
-	
+
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "does not support interactive mode")
 }
@@ -362,13 +362,13 @@ func TestBasePlugin_StartInteractive_RecvError(t *testing.T) {
 	})
 
 	stream := NewMockStream()
-	
+
 	// Simulate receive error
 	expectedErr := errors.New("connection lost")
 	stream.On("Recv").Return((*StreamMessage)(nil), expectedErr).Once()
 
 	err := plugin.StartInteractive(stream)
-	
+
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to receive initial message")
 }
@@ -387,7 +387,7 @@ func TestInteractiveCommand_DefaultExecute(t *testing.T) {
 
 	// Should return RequiresInteractive by default
 	resp, err := cmd.Execute(context.Background(), &ExecuteRequest{})
-	
+
 	require.NoError(t, err)
 	assert.True(t, resp.RequiresInteractive)
 }
@@ -477,7 +477,7 @@ func TestBasePlugin_CompleteInteractiveFlow(t *testing.T) {
 
 	// Create mock stream
 	stream := NewMockStream()
-	
+
 	// Setup the interaction sequence by adding messages to the receive queue
 	stream.AddToReceiveQueue(&StreamMessage{
 		Type: StreamMessage_STDIN,
@@ -500,15 +500,15 @@ func TestBasePlugin_CompleteInteractiveFlow(t *testing.T) {
 
 	// Verify the sent messages
 	require.Len(t, stream.sentMessages, 3)
-	
+
 	// Welcome message
 	assert.Equal(t, StreamMessage_STDOUT, stream.sentMessages[0].Type)
 	assert.Equal(t, []byte("Echo started\n"), stream.sentMessages[0].Data)
-	
+
 	// Echo response
 	assert.Equal(t, StreamMessage_STDOUT, stream.sentMessages[1].Type)
 	assert.Equal(t, []byte("Echo: hello\n"), stream.sentMessages[1].Data)
-	
+
 	// Exit message
 	assert.Equal(t, StreamMessage_EXIT, stream.sentMessages[2].Type)
 	assert.Equal(t, int32(0), stream.sentMessages[2].ExitCode)

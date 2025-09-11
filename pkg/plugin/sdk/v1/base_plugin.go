@@ -19,13 +19,13 @@ type CommandHandler interface {
 // BasePlugin provides a base implementation of GlidePluginServer with automatic routing
 type BasePlugin struct {
 	UnimplementedGlidePluginServer
-	
+
 	// Plugin metadata
 	metadata *PluginMetadata
-	
+
 	// Registered commands mapped by name
 	commands map[string]CommandHandler
-	
+
 	// Configuration storage
 	config map[string]interface{}
 }
@@ -56,7 +56,7 @@ func (p *BasePlugin) Configure(ctx context.Context, req *ConfigureRequest) (*Con
 	for k, v := range req.Config {
 		p.config[k] = v
 	}
-	
+
 	return &ConfigureResponse{
 		Success: true,
 		Message: fmt.Sprintf("%s plugin configured successfully", p.metadata.Name),
@@ -66,11 +66,11 @@ func (p *BasePlugin) Configure(ctx context.Context, req *ConfigureRequest) (*Con
 // ListCommands returns all registered commands
 func (p *BasePlugin) ListCommands(ctx context.Context, _ *Empty) (*CommandList, error) {
 	var cmdList []*CommandInfo
-	
+
 	for _, handler := range p.commands {
 		cmdList = append(cmdList, handler.Info())
 	}
-	
+
 	return &CommandList{
 		Commands: cmdList,
 	}, nil
@@ -85,7 +85,7 @@ func (p *BasePlugin) ExecuteCommand(ctx context.Context, req *ExecuteRequest) (*
 			Error:   fmt.Sprintf("unknown command: %s", req.Command),
 		}, nil
 	}
-	
+
 	return handler.Execute(ctx, req)
 }
 
@@ -96,25 +96,25 @@ func (p *BasePlugin) StartInteractive(stream GlidePlugin_StartInteractiveServer)
 	if err != nil {
 		return fmt.Errorf("failed to receive initial message: %w", err)
 	}
-	
+
 	// Extract command name from the initial message
 	cmdName := string(msg.Data)
 	if cmdName == "" {
 		// Fallback: check if it's in the Signal field
 		cmdName = msg.Signal
 	}
-	
+
 	// If still no command name, return error
 	if cmdName == "" {
 		return fmt.Errorf("no command specified in initial message")
 	}
-	
+
 	// Find the command handler
 	handler, ok := p.commands[cmdName]
 	if !ok {
 		return fmt.Errorf("unknown command: %s", cmdName)
 	}
-	
+
 	// Check if it supports interactive mode
 	interactiveHandler, ok := handler.(InteractiveCommandHandler)
 	if !ok {
@@ -124,7 +124,7 @@ func (p *BasePlugin) StartInteractive(stream GlidePlugin_StartInteractiveServer)
 		}
 		return fmt.Errorf("command %s does not support interactive mode", cmdName)
 	}
-	
+
 	// Delegate to the command's interactive handler
 	return interactiveHandler.StartInteractive(stream)
 }
@@ -160,8 +160,8 @@ func (c *SimpleCommand) Execute(ctx context.Context, req *ExecuteRequest) (*Exec
 
 // BaseInteractiveCommand combines CommandHandler with InteractiveCommandHandler
 type BaseInteractiveCommand struct {
-	info              *CommandInfo
-	executeHandler    func(ctx context.Context, req *ExecuteRequest) (*ExecuteResponse, error)
+	info               *CommandInfo
+	executeHandler     func(ctx context.Context, req *ExecuteRequest) (*ExecuteResponse, error)
 	interactiveHandler func(stream GlidePlugin_StartInteractiveServer) error
 }
 
@@ -174,8 +174,8 @@ func NewBaseInteractiveCommand(
 	// Ensure the command is marked as interactive
 	info.Interactive = true
 	return &BaseInteractiveCommand{
-		info:              info,
-		executeHandler:    executeHandler,
+		info:               info,
+		executeHandler:     executeHandler,
 		interactiveHandler: interactiveHandler,
 	}
 }

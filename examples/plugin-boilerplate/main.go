@@ -60,7 +60,7 @@ func main() {
 			if len(req.Args) > 0 {
 				name = strings.Join(req.Args, " ")
 			}
-			
+
 			greeting := fmt.Sprintf("Hello, %s! 👋\n", name)
 			return &sdk.ExecuteResponse{
 				Success: true,
@@ -79,20 +79,20 @@ func main() {
 		},
 		func(ctx context.Context, req *sdk.ExecuteRequest) (*sdk.ExecuteResponse, error) {
 			config := basePlugin.GetConfig()
-			
+
 			if len(config) == 0 {
 				return &sdk.ExecuteResponse{
 					Success: true,
 					Stdout:  []byte("No configuration found\n"),
 				}, nil
 			}
-			
+
 			var output strings.Builder
 			output.WriteString("Plugin Configuration:\n")
 			for key, value := range config {
 				output.WriteString(fmt.Sprintf("  %s: %v\n", key, value))
 			}
-			
+
 			return &sdk.ExecuteResponse{
 				Success: true,
 				Stdout:  []byte(output.String()),
@@ -121,7 +121,7 @@ func main() {
 			}); err != nil {
 				return err
 			}
-			
+
 			if err := stream.Send(&sdk.StreamMessage{
 				Type: sdk.StreamMessage_STDOUT,
 				Data: []byte("Type 'help' for commands, 'exit' to quit.\n> "),
@@ -138,7 +138,7 @@ func main() {
 
 				if msg.Type == sdk.StreamMessage_STDIN {
 					input := strings.TrimSpace(string(msg.Data))
-					
+
 					switch input {
 					case "exit", "quit":
 						stream.Send(&sdk.StreamMessage{
@@ -150,7 +150,7 @@ func main() {
 							ExitCode: 0,
 						})
 						return nil
-						
+
 					case "help":
 						help := `Available commands:
   help  - Show this help message
@@ -161,7 +161,7 @@ func main() {
 							Type: sdk.StreamMessage_STDOUT,
 							Data: []byte(help),
 						})
-						
+
 					default:
 						if strings.HasPrefix(input, "echo ") {
 							echoText := strings.TrimPrefix(input, "echo ")
@@ -217,7 +217,7 @@ func main() {
 					Stdout:  []byte(result),
 				}, nil
 			}
-			
+
 			// No arguments: switch to interactive mode
 			return &sdk.ExecuteResponse{
 				RequiresInteractive: true,
@@ -229,18 +229,18 @@ func main() {
 				Type: sdk.StreamMessage_STDOUT,
 				Data: []byte("Interactive processing mode. Enter data to process, 'done' when finished:\n"),
 			})
-			
+
 			var items []string
 			for {
 				msg, err := stream.Recv()
 				if err != nil {
 					break
 				}
-				
+
 				if msg.Type == sdk.StreamMessage_STDIN {
 					input := strings.TrimSpace(string(msg.Data))
 					if input == "done" {
-						result := fmt.Sprintf("\nProcessed %d items:\n- %s\n", 
+						result := fmt.Sprintf("\nProcessed %d items:\n- %s\n",
 							len(items), strings.Join(items, "\n- "))
 						stream.Send(&sdk.StreamMessage{
 							Type: sdk.StreamMessage_STDOUT,
@@ -252,7 +252,7 @@ func main() {
 						})
 						return nil
 					}
-					
+
 					items = append(items, input)
 					stream.Send(&sdk.StreamMessage{
 						Type: sdk.StreamMessage_STDOUT,
