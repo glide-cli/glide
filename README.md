@@ -1,154 +1,151 @@
-# Glide CLI
+<p align="center">
+  <img src="docs/assets/glide-logotype.png" alt="Glide" width="400">
+</p>
 
-A modern, context-aware development CLI that glides through complex workflows with intelligent project detection and transparent argument passing.
+<h3 align="center">Streamline your development workflow with context-aware command orchestration</h3>
 
-## Features
+<p align="center">
+  <a href="https://github.com/ivannovak/glide/releases"><img src="https://img.shields.io/github/v/release/ivannovak/glide?style=flat-square" alt="Release"></a>
+  <a href="https://github.com/ivannovak/glide/actions"><img src="https://img.shields.io/github/actions/workflow/status/ivannovak/glide/ci.yml?branch=main&style=flat-square" alt="Build Status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
+</p>
 
-- 🚀 **Zero Dependencies** - Single binary, no runtime requirements
-- 🎯 **Context Aware** - Automatically detects project structure and development mode  
-- 🔄 **Transparent Pass-through** - Full argument support for underlying tools
-- 🌳 **Multi-Worktree Support** - Manage multiple feature branches in parallel
-- ⚡ **Fast** - Native Go binary with < 50ms startup time
+---
 
-## Installation
+## What is Glide?
 
-### Quick Install (Recommended)
+Glide is a context-aware command orchestrator that adapts to your project environment, streamlining complex development workflows through an extensible plugin system. It detects what you're working on and provides the right tools at the right time.
 
-```bash
-curl -sSL https://raw.githubusercontent.com/ivannovak/glide/main/install.sh | bash
-```
+### Why Glide?
 
-### Manual Download
-
-Download the appropriate binary for your platform from [releases](https://github.com/ivannovak/glide/releases):
-
-- macOS Apple Silicon: `glid-darwin-arm64`
-- macOS Intel: `glid-darwin-amd64`
-- Linux x64: `glid-linux-amd64`
-- Linux ARM: `glid-linux-arm64`
-
-### Build from Source
-
-```bash
-git clone https://github.com/ivannovak/glide.git
-cd glide
-./scripts/build.sh
-sudo mv dist/glid-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m) /usr/local/bin/glid
-```
-
-### Shell Completion
-
-Enable tab autocompletion for your shell:
-
-#### Zsh (Oh My Zsh)
-```bash
-mkdir -p ~/.oh-my-zsh/completions
-glid completion zsh > ~/.oh-my-zsh/completions/_glid
-source ~/.zshrc
-```
-
-#### Zsh (Standard)
-```bash
-# Add to ~/.zshrc
-source <(glid completion zsh)
-```
-
-#### Bash
-```bash
-# Add to ~/.bashrc or ~/.bash_profile
-source <(glid completion bash)
-```
-
-#### Fish
-```bash
-glid completion fish > ~/.config/fish/completions/glid.fish
-```
-
-After installation, tab completion will work for all Glide commands, subcommands, flags, and plugin commands.
+- **🎯 Context-Aware**: Automatically detects your project type and provides relevant commands
+- **🔌 Extensible**: Add custom commands through a powerful plugin system  
+- **🌳 Worktree-Optimized**: First-class support for Git worktrees to work on multiple features simultaneously
+- **⚡ Fast**: Written in Go for instant command execution
+- **🛠️ Developer-First**: Built by developers, for developers who value efficient workflows
 
 ## Quick Start
 
-### Initial Setup
+### Install Glide
 
 ```bash
-# Run from your project directory
-glid setup
+# macOS/Linux
+curl -sSL https://raw.githubusercontent.com/ivannovak/glide/main/install.sh | bash
 
-# Choose development mode:
-# 1. Multi-Worktree (recommended for teams)
-# 2. Single-Repository (traditional)
+# Or download directly from releases
+# https://github.com/ivannovak/glide/releases
 ```
 
-### Common Commands
+### Your First Commands
 
 ```bash
-# Start Docker environment
-glid up
+# See what Glide detected about your project
+glid context
 
-# Run tests with full argument support
-glid test --parallel --processes=5 --filter=MyTest
+# List all available commands
+glid help
 
-# Docker commands with auto-detected compose files
-glid docker exec app sh
-glid docker logs -f app
-
-# Create a new worktree (multi-worktree mode)
-glid g worktree feature/new-api
-
-# Stop all Docker containers
-glid g down-all
+# Run a command (example with docker)
+glid up        # Start your project
+glid status    # Check project status
+glid down      # Stop your project
 ```
 
-## Development Modes
+## Core Concepts
 
-### Multi-Worktree Mode
-- Manage multiple feature branches in parallel
-- Global commands via `glid g` or `glid global`
-- Isolated Docker environments per worktree
-- Ideal for teams and complex projects
+### 🎭 Two Development Modes
 
-### Single-Repository Mode  
-- Traditional single checkout workflow
-- Simpler command structure
-- No worktree management overhead
-- Perfect for getting started
+Glide operates in two modes to match your workflow:
 
-## Project Structure
+1. **Standard Mode** - Quick commands for immediate tasks
+2. **Interactive Mode** - Full terminal sessions for complex operations
 
-```
-glide/
-├── cmd/glid/         # Main entry point
-├── internal/         # Core implementation
-│   ├── cli/         # Command definitions
-│   ├── context/     # Project detection
-│   ├── docker/      # Docker operations
-│   ├── shell/       # Shell execution
-│   └── config/      # Configuration
-├── pkg/             # Reusable packages
-├── scripts/         # Build and install scripts
-└── dist/            # Compiled binaries
+```bash
+# Standard mode - quick command
+glid status
+
+# Interactive mode - when you need a full session
+glid shell  # Opens interactive shell in your container
 ```
 
-## Configuration
+### 🔌 Plugin System
 
-Glide uses a global configuration file at `~/.glide.yml`:
+Extend Glide with custom commands specific to your team or project:
 
-```yaml
-projects:
-  myproject:
-    path: /Users/ivan/Code/myproject
-    mode: multi-worktree
+```bash
+# List installed plugins
+glid plugins list
 
-defaults:
-  test:
-    parallel: true
-    processes: 3
+# Plugins provide seamless commands
+glid deploy staging    # From a deployment plugin
+glid db backup        # From a database plugin
 ```
+
+### 🌳 Worktree Support
+
+Work on multiple features without context switching:
+
+```bash
+# Create a new worktree for a feature
+glid worktree feature/new-feature
+
+# Each worktree maintains its own environment
+cd worktrees/feature-new-feature
+glid up  # Isolated environment for this feature
+```
+
+## Documentation
+
+### 🚀 Getting Started
+- [**Installation Guide**](docs/getting-started/installation.md) - Get Glide running in 2 minutes
+- [**First Steps**](docs/getting-started/first-steps.md) - Essential commands and concepts
+- [**Project Setup**](docs/getting-started/project-setup.md) - Configure Glide for your project
+
+### 📚 Learn More
+- [**Core Concepts**](docs/core-concepts/README.md) - Understand how Glide works
+- [**Common Workflows**](docs/guides/README.md) - Real-world usage patterns
+- [**Plugin Development**](docs/plugin-development/README.md) - Create your own plugins
+
+## Built-in Commands
+
+Glide includes essential commands out of the box:
+
+| Command | Description |
+|---------|------------|
+| `context` | Show detected project information |
+| `help` | Display available commands |
+| `version` | Show Glide version |
+| `plugins` | Manage plugins |
+| `worktree` | Manage Git worktrees |
+| `self-update` | Update Glide to the latest version |
+
+*Additional commands are provided by plugins based on your project context.*
+
+## Philosophy
+
+Glide follows these principles:
+
+1. **Context is King** - Understand the environment and provide relevant tools
+2. **Progressive Disclosure** - Show simple options first, reveal complexity as needed
+3. **Extensible by Default** - Teams know their needs best
+4. **Speed Matters** - Every millisecond counts in development workflows
+5. **Respect Existing Tools** - Enhance, don't replace
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/ivannovak/glide/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ivannovak/glide/discussions)
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+<p align="center">
+  <sub>Built with ❤️ by developers who were tired of typing the same commands over and over.</sub>
+</p>
