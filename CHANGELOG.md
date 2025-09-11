@@ -1,3 +1,10 @@
+## [0.10.0](https://github.com/ivannovak/glide/compare/v0.9.0...v0.10.0) (2025-09-11)
+
+
+### Features
+
+* **sdk:** Add BasePlugin helper for simplified plugin authorship ([#7](https://github.com/ivannovak/glide/issues/7)) ([e9adb0b](https://github.com/ivannovak/glide/commit/e9adb0b59dbc3cdcc1197ef1ee093f0f2316e7cc))
+
 ## [0.9.0](https://github.com/ivannovak/glide/compare/v0.8.1...v0.9.0) (2025-09-10)
 
 
