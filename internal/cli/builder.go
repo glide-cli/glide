@@ -1,9 +1,14 @@
 package cli
 
 import (
+	"os"
+
+	"github.com/ivannovak/glide/internal/config"
 	"github.com/ivannovak/glide/pkg/app"
 	"github.com/ivannovak/glide/pkg/branding"
+	"github.com/ivannovak/glide/pkg/plugin"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 // Builder handles the construction of CLI commands
@@ -21,6 +26,9 @@ func NewBuilder(application *app.Application) *Builder {
 
 	// Register all commands
 	builder.registerCommands()
+
+	// Load YAML-defined commands
+	builder.loadYAMLCommands()
 
 	return builder
 }
@@ -180,4 +188,68 @@ func (b *Builder) registerCompletions(rootCmd *cobra.Command) {
 // GetRegistry returns the command registry
 func (b *Builder) GetRegistry() *Registry {
 	return b.registry
+}
+
+// loadYAMLCommands discovers and loads YAML-defined commands with proper priority ordering
+func (b *Builder) loadYAMLCommands() {
+	// 1. Core commands are already registered (highest priority)
+
+	// 2. Discover and load all .glide.yml files up the tree
+	cwd, _ := os.Getwd()
+	configPaths, err := config.DiscoverConfigs(cwd)
+	if err == nil && len(configPaths) > 0 {
+		localConfigs, err := config.LoadAndMergeConfigs(configPaths)
+		if err == nil && localConfigs.Commands != nil {
+			commands, err := config.ParseCommands(localConfigs.Commands)
+			if err == nil {
+				for name, cmd := range commands {
+					// Check for conflicts with core commands
+					if !isProtectedCommand(name) {
+						_ = b.registry.AddYAMLCommand(name, cmd)
+					}
+				}
+			}
+		}
+	}
+
+	// 3. Plugin-bundled YAML commands
+	// Load YAML commands from plugin directories
+	_ = plugin.AddPluginYAMLCommands(nil, b.registry)
+
+	// 4. Load global commands (~/.glide/config.yml) - lowest priority
+	globalConfigPath := branding.GetConfigPath()
+	if _, err := os.Stat(globalConfigPath); err == nil {
+		data, err := os.ReadFile(globalConfigPath)
+		if err == nil {
+			var globalConfig config.Config
+			if err := yaml.Unmarshal(data, &globalConfig); err == nil {
+				if globalConfig.Commands != nil {
+					commands, err := config.ParseCommands(globalConfig.Commands)
+					if err == nil {
+						for name, cmd := range commands {
+							// Only add if not already defined
+							if _, exists := b.registry.Get(name); !exists {
+								_ = b.registry.AddYAMLCommand(name, cmd)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// isProtectedCommand checks if a command name is protected (core command)
+func isProtectedCommand(name string) bool {
+	protected := []string{
+		"help", "setup", "plugins", "plugin", "self-update",
+		"update", "upgrade", "version", "completion", "global",
+		"config", "context", "shell-test", "docker-test", "container-test",
+	}
+	for _, p := range protected {
+		if name == p {
+			return true
+		}
+	}
+	return false
 }

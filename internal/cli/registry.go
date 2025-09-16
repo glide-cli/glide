@@ -3,6 +3,7 @@ package cli
 import (
 	"sync"
 
+	"github.com/ivannovak/glide/internal/config"
 	"github.com/ivannovak/glide/pkg/registry"
 	"github.com/spf13/cobra"
 )
@@ -40,6 +41,7 @@ const (
 	CategoryGlobal    Category = "global"
 	CategoryDebug     Category = "debug"
 	CategoryHelp      Category = "help"
+	CategoryYAML      Category = "yaml" // User-defined YAML commands
 )
 
 // NewRegistry creates a new command registry
@@ -144,4 +146,73 @@ func (r *Registry) CreateByCategory(category Category) []*cobra.Command {
 	}
 
 	return commands
+}
+
+// AddYAMLCommand registers a YAML-defined command
+func (r *Registry) AddYAMLCommand(name string, cmd *config.Command) error {
+	// Create a factory that builds a cobra command from the YAML definition
+	factory := func() *cobra.Command {
+		cobraCmd := &cobra.Command{
+			Use:   name,
+			Short: cmd.Description,
+			Long:  cmd.Help,
+			RunE: func(c *cobra.Command, args []string) error {
+				// Execute the YAML-defined command
+				return ExecuteYAMLCommand(cmd.Cmd, args)
+			},
+		}
+
+		// Set alias if defined
+		if cmd.Alias != "" {
+			cobraCmd.Aliases = []string{cmd.Alias}
+		}
+
+		// Allow arbitrary args to be passed through
+		cobraCmd.DisableFlagParsing = true
+
+		return cobraCmd
+	}
+
+	// Determine category
+	category := CategoryYAML
+	if cmd.Category != "" {
+		// Try to map to existing category
+		switch cmd.Category {
+		case "core":
+			category = CategoryCore
+		case "docker":
+			category = CategoryDocker
+		case "testing":
+			category = CategoryTesting
+		case "database":
+			category = CategoryDatabase
+		case "developer":
+			category = CategoryDeveloper
+		case "setup":
+			category = CategorySetup
+		case "plugin":
+			category = CategoryPlugin
+		case "global":
+			category = CategoryGlobal
+		case "debug":
+			category = CategoryDebug
+		case "help":
+			category = CategoryHelp
+		default:
+			category = CategoryYAML
+		}
+	}
+
+	metadata := Metadata{
+		Name:        name,
+		Category:    category,
+		Description: cmd.Description,
+	}
+
+	// Add alias to metadata if defined
+	if cmd.Alias != "" {
+		metadata.Aliases = []string{cmd.Alias}
+	}
+
+	return r.Register(name, factory, metadata)
 }

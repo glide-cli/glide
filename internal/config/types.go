@@ -1,17 +1,34 @@
 package config
 
+// CommandMap handles both simple string and structured Command formats
+type CommandMap map[string]interface{}
+
+// Command represents a user-defined command
+type Command struct {
+	// The actual command(s) to execute
+	Cmd string `yaml:"cmd"`
+
+	// Optional fields for structured format
+	Alias       string `yaml:"alias,omitempty"`
+	Description string `yaml:"description,omitempty"`
+	Help        string `yaml:"help,omitempty"`
+	Category    string `yaml:"category,omitempty"`
+}
+
 // Config represents the global Glide configuration
 type Config struct {
 	Projects       map[string]ProjectConfig `yaml:"projects"`
 	DefaultProject string                   `yaml:"default_project"`
 	Defaults       DefaultsConfig           `yaml:"defaults"`
 	Plugins        map[string]interface{}   `yaml:"plugins"`
+	Commands       CommandMap               `yaml:"commands,omitempty"`
 }
 
 // ProjectConfig represents a single project configuration
 type ProjectConfig struct {
-	Path string `yaml:"path"`
-	Mode string `yaml:"mode"` // multi-worktree or single-repo
+	Path     string     `yaml:"path"`
+	Mode     string     `yaml:"mode"` // multi-worktree or single-repo
+	Commands CommandMap `yaml:"commands,omitempty"`
 }
 
 // DefaultsConfig contains default settings

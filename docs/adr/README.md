@@ -30,6 +30,9 @@ Each ADR follows this format:
 | [ADR-007](ADR-007-plugin-architecture-evolution.md) | Plugin Architecture Evolution | Accepted | 2025-09-08 |
 | [ADR-008](ADR-008-generic-registry-pattern.md) | Generic Registry Pattern | Accepted | 2025-09-09 |
 | [ADR-009](ADR-009-command-builder-pattern.md) | Shell Command Builder Pattern | Accepted | 2025-09-09 |
+| [ADR-010](ADR-010-semantic-release-automation.md) | Semantic Release Automation | Accepted | 2025-09-10 |
+| [ADR-011](ADR-011-recursive-configuration-discovery.md) | Recursive Configuration Discovery | Accepted | 2025-09-15 |
+| [ADR-012](ADR-012-yaml-command-definition.md) | YAML Command Definition | Accepted | 2025-09-15 |
 
 ## Creating New ADRs
 

@@ -1,0 +1,113 @@
+# Example Glide Configuration with YAML-Defined Commands
+# Copy this to .glide.yml in your project root to use these commands
+
+# Simple command format - just the command string
+commands:
+  # Docker shortcuts
+  build: docker build --no-cache .
+  clean: docker system prune -af
+  rebuild: glid down && glid build && glid up
+
+  # Git shortcuts
+  pull: git pull origin main
+  push: git push origin HEAD
+  sync: git pull --rebase && git push
+
+  # Testing shortcuts
+  test: go test ./...
+  coverage: go test -cover ./...
+  bench: go test -bench=. ./...
+
+  # Development workflow
+  fresh: |
+    git pull
+    go mod download
+    go build ./...
+    go test ./...
+
+  # Structured command format with additional properties
+  deploy:
+    cmd: |
+      echo "Deploying to production..."
+      go test ./...
+      go build -o app ./cmd/glid
+      echo "Deployment complete!"
+    alias: d
+    description: "Deploy the application"
+    help: |
+      Runs tests, builds the application, and deploys it.
+
+      This command will:
+      1. Run all tests to ensure code quality
+      2. Build the application binary
+      3. Deploy to production
+
+      Usage: glid deploy [environment]
+    category: developer
+
+  status:
+    cmd: |
+      echo "=== Git Status ==="
+      git status --short
+      echo ""
+      echo "=== Go Module Status ==="
+      go list -m all | head -5
+    alias: s
+    description: "Show project status"
+    category: developer
+
+  setup-dev:
+    cmd: |
+      echo "Setting up development environment..."
+      go mod download
+      go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+      go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      echo "Development environment ready!"
+    description: "Setup development environment"
+    help: "Installs all development dependencies and tools"
+    category: setup
+
+  # Parameterized commands
+  greet:
+    cmd: echo "Hello, $1! Welcome to $2"
+    description: "Greet someone"
+    # Usage: glid greet John "the project"
+    # Output: Hello, John! Welcome to the project
+
+  backup:
+    cmd: tar -czf backup-$1.tar.gz .
+    alias: bk
+    description: "Create a backup with timestamp"
+    # Usage: glid backup 2024-01-15
+    # Creates: backup-2024-01-15.tar.gz
+
+  run-in:
+    cmd: cd $1 && $2
+    description: "Run command in directory"
+    # Usage: glid run-in ./subdir "npm test"
+    # Runs: npm test in ./subdir
+
+# Plugin configuration (if you have plugins installed)
+plugins:
+  docker:
+    compose_file: docker-compose.dev.yml
+
+# Project configuration
+projects:
+  myproject:
+    path: .
+    mode: single-repo
+
+# Default settings
+defaults:
+  test:
+    parallel: true
+    processes: 4
+    coverage: false
+    verbose: false
+  docker:
+    compose_timeout: 30
+    auto_start: true
+    remove_orphans: false
+  colors:
+    enabled: auto
