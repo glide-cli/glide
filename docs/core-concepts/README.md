@@ -132,25 +132,36 @@ docker-compose up
 
 With Glide worktrees:
 ```bash
-# Each feature has its own directory and environment
-cd worktrees/feature-a  # Full environment running
-cd worktrees/feature-b  # Different environment running
-# No context loss!
+# From project root
+cd vcs/                  # Main repo for hotfixes
+cd ../worktrees/feature-a  # Full environment running
+cd ../worktrees/feature-b  # Different environment running
+# No context loss, complete isolation!
 ```
 
 ### How Worktrees Work
 
 ```
-main-repo/
-├── .git/                 # Shared Git repository
-├── worktrees/
-│   ├── feature-a/       # Complete checkout
-│   │   ├── .env         # Isolated config
-│   │   └── ...          # All project files
-│   └── feature-b/       # Another checkout
-│       ├── .env         # Different config
-│       └── ...          # All project files
+project-root/
+├── vcs/                  # Main Git repository
+│   ├── .git/            # Git directory
+│   └── ...              # Project files (for hotfixes/exploration)
+└── worktrees/
+    ├── feature-a/       # Git worktree checkout
+    │   ├── .git         # File pointing to main repo
+    │   ├── .env         # Isolated config
+    │   └── ...          # All project files
+    └── feature-b/       # Another worktree checkout
+        ├── .git         # File pointing to main repo
+        ├── .env         # Different config
+        └── ...          # All project files
 ```
+
+Key architecture points:
+- **vcs/**: Contains the primary Git checkout for hotfixes and exploratory work
+- **worktrees/**: Contains all Git worktrees, completely separate from main repo
+- **No .gitignore changes needed**: Worktrees live outside the Git context
+- **Clean separation**: Main repository remains unaware of worktree existence
 
 Each worktree:
 - Has its own working directory
