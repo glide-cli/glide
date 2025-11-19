@@ -7,7 +7,7 @@ import (
 
 // Build information variables
 var (
-	Version   = "0.10.1"
+	Version   = "1.0.0"
 	BuildDate = "unknown"
 	GitCommit = "unknown"
 )

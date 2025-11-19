@@ -1,3 +1,42 @@
+## [1.0.0](https://github.com/ivannovak/glide/compare/v0.10.1...v1.0.0) (2025-11-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* The CLI command has been renamed from "glid" to "glide".
+Users will need to use "glide" instead of "glid" after this update.
+* The 'global' command is now 'project' to better reflect its purpose
+
+- Rename command from 'glid global' to 'glid project'
+- Update alias from 'g' to 'p'
+- Rename all GlobalCommand structs/types to ProjectCommand
+- Update all documentation to use new terminology
+- Update method CanUseGlobalCommands() to CanUseProjectCommands()
+
+The term 'project' more accurately describes these commands that operate
+across all worktrees within a project, avoiding confusion with system-wide
+operations that 'global' might imply.
+
+Migration guide:
+- Replace 'glid global' with 'glid project' in scripts
+- Replace 'glid g' with 'glid p' for the short alias
+
+### Features
+
+* add standalone mode and context-aware help system ([a0d72ca](https://github.com/ivannovak/glide/commit/a0d72ca580c3bb334a1108f22773defa9e3971c2))
+* **commands:** add YAML-defined commands with recursive config discovery ([d22e4b9](https://github.com/ivannovak/glide/commit/d22e4b9f036f084e3f099d532ef854e487d8f12d))
+
+
+### Bug Fixes
+
+* **tests:** update plugin SDK test expectations after glide rename ([2c56b76](https://github.com/ivannovak/glide/commit/2c56b76df3f5c3324c2580fd77509df8f99b119f))
+
+
+### Code Refactoring
+
+* rename 'global' commands to 'project' commands ([3a65446](https://github.com/ivannovak/glide/commit/3a65446b5250727b0cb004823bdbefe64bd73ddf))
+* rename command from glid to glide ([767bd7f](https://github.com/ivannovak/glide/commit/767bd7f2b0377fd5d4e1e58b6aec61cf0b6d0068))
+
 ## [0.10.1](https://github.com/ivannovak/glide/compare/v0.10.0...v0.10.1) (2025-09-11)
 
 
