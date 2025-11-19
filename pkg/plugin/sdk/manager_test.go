@@ -189,10 +189,10 @@ func TestDiscovererWithAncestorDirs(t *testing.T) {
 	// Find the plugins by name
 	var foundProject, foundSub bool
 	for _, p := range plugins {
-		if p.Name == "project" {
+		if p.Name == "project-plugin" {
 			foundProject = true
 		}
-		if p.Name == "sub" {
+		if p.Name == "sub-plugin" {
 			foundSub = true
 		}
 	}

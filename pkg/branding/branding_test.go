@@ -11,12 +11,12 @@ import (
 
 func TestDefaultValues(t *testing.T) {
 	// Test default values
-	assert.Equal(t, "glid", CommandName)
+	assert.Equal(t, "glide", CommandName)
 	assert.Equal(t, ".glide.yml", ConfigFileName)
 	assert.Equal(t, "Glide", ProjectName)
 	assert.Equal(t, "context-aware development CLI", Description)
 	assert.Contains(t, LongDescription, "modern")
-	assert.Equal(t, "glid", CompletionDir)
+	assert.Equal(t, "glide", CompletionDir)
 	assert.Equal(t, "https://github.com/ivannovak/glide", RepositoryURL)
 }
 
@@ -94,17 +94,17 @@ func TestGetCompletionPath(t *testing.T) {
 		{
 			name:     "bash completion path",
 			shell:    "bash",
-			expected: "/usr/local/etc/bash_completion.d/glid",
+			expected: "/usr/local/etc/bash_completion.d/glide",
 		},
 		{
 			name:     "zsh completion path",
 			shell:    "zsh",
-			expected: "/usr/local/share/zsh/site-functions/glid",
+			expected: "/usr/local/share/zsh/site-functions/glide",
 		},
 		{
 			name:     "fish completion path",
 			shell:    "fish",
-			expected: filepath.Join(os.Getenv("HOME"), ".config", "fish", "completions", "glid"),
+			expected: filepath.Join(os.Getenv("HOME"), ".config", "fish", "completions", "glide"),
 		},
 		{
 			name:     "unknown shell",

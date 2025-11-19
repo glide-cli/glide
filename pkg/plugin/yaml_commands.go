@@ -62,7 +62,9 @@ func LoadPluginYAMLCommands(pluginPath string) (map[string]*config.Command, erro
 }
 
 // AddPluginYAMLCommands adds YAML commands from plugins to the root command
-func AddPluginYAMLCommands(rootCmd *cobra.Command, registry interface{ AddYAMLCommand(string, *config.Command) error }) error {
+func AddPluginYAMLCommands(rootCmd *cobra.Command, registry interface {
+	AddYAMLCommand(string, *config.Command) error
+}) error {
 	// Get plugin directories
 	pluginDirs := getPluginDirectories()
 

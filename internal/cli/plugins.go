@@ -255,7 +255,7 @@ func newPluginRemoveCommand() *cobra.Command {
 			// Check if plugin exists
 			pluginDir := branding.GetGlobalPluginDir()
 			pluginPath := filepath.Join(pluginDir, pluginName)
-			
+
 			if _, err := os.Stat(pluginPath); err != nil {
 				return fmt.Errorf("plugin '%s' not found", pluginName)
 			}

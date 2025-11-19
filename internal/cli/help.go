@@ -716,7 +716,7 @@ func (hc *HelpCommand) areCompletionsInstalled() bool {
 	for _, configPath := range shellConfigs {
 		if data, err := os.ReadFile(configPath); err == nil {
 			if strings.Contains(string(data), branding.CommandName) &&
-			   strings.Contains(string(data), "complete") {
+				strings.Contains(string(data), "complete") {
 				return true
 			}
 		}
