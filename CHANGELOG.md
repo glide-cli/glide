@@ -1,3 +1,15 @@
+## [1.2.0](https://github.com/ivannovak/glide/compare/v1.1.0...v1.2.0) (2025-11-20)
+
+
+### Features
+
+* improve help display with ASCII header and user command visibility ([1bf4ae7](https://github.com/ivannovak/glide/commit/1bf4ae7daf27b5822ab0ca77b7c714b0e2d0b140))
+
+
+### Bug Fixes
+
+* format help.go to pass lint checks ([30649f0](https://github.com/ivannovak/glide/commit/30649f074373c6837e6f1a4ba98d02974194b5c5))
+
 ## [1.1.0](https://github.com/ivannovak/glide/compare/v1.0.0...v1.1.0) (2025-11-20)
 
 
