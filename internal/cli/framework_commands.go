@@ -165,13 +165,6 @@ func (fci *FrameworkCommandInjector) GetFrameworkInfo(projectPath string) ([]det
 	return fci.detector.DetectFrameworks(projectPath)
 }
 
-// shouldOverride determines if a command should override an existing one
-func shouldOverride(newDef, existingDef sdk.CommandDefinition, confidence int) bool {
-	// For now, don't override existing commands
-	// In future, could use confidence score or priority
-	return false
-}
-
 // ExecuteFrameworkCommand is a helper to execute a framework command directly
 func ExecuteFrameworkCommand(cmd string, args []string) error {
 	// Parse the command
