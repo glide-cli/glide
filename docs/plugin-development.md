@@ -555,9 +555,19 @@ Enable debug mode to see plugin loading:
 GLIDE_DEBUG=true glide your-command
 ```
 
+## Framework Detection
+
+Plugins can contribute framework detectors to automatically detect programming languages, frameworks, and tools in projects. See the [Framework Detection Guide](./framework-detection.md) for details on:
+
+- Creating custom framework detectors
+- Using the BaseFrameworkDetector for pattern-based detection
+- Registering detectors with your plugin
+- Command injection based on detected frameworks
+
 ## Further Reading
 
 - [Cobra Documentation](https://github.com/spf13/cobra)
 - [Glide Architecture](./architecture.md)
+- [Framework Detection](./framework-detection.md)
 - [Error Handling Guide](./error-handling.md)
 - [Testing Plugins](./testing.md)

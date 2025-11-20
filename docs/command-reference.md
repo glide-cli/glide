@@ -146,7 +146,7 @@ These commands are available for debugging and troubleshooting.
 
 ### `glide context`
 
-Display detailed information about the detected project context.
+Display detailed information about the detected project context, including automatically detected frameworks and languages.
 
 ```bash
 glide context                  # Show context information
@@ -156,6 +156,9 @@ glide context --json           # Output as JSON
 **Shows:**
 - Project root location
 - Development mode (single-repo, multi-worktree, standalone)
+- Detected frameworks and languages (Go, Node.js, PHP, etc.)
+- Framework versions
+- Available framework-specific commands
 - Current location type
 - Working directory
 - Docker status (if applicable)
@@ -297,5 +300,7 @@ glide docker:status  # If docker plugin provides this
 
 - [Getting Started Guide](getting-started/first-steps.md)
 - [Core Concepts](core-concepts/README.md)
+- [Framework Detection](framework-detection.md)
+- [Plugin Development](plugin-development.md)
 - [Common Workflows](guides/README.md)
 - [Troubleshooting](troubleshooting.md)

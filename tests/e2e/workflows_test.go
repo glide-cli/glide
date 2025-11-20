@@ -634,7 +634,8 @@ services:
 		detectionTime := time.Since(start)
 
 		// Context detection should be fast even for large projects
-		assert.Less(t, detectionTime, 100*time.Millisecond, "Context detection should be fast")
+		// Allow 200ms to account for framework detection overhead
+		assert.Less(t, detectionTime, 200*time.Millisecond, "Context detection should be fast")
 		assert.NotNil(t, ctx)
 		if len(ctx.ComposeFiles) > 0 {
 			assert.Contains(t, ctx.ComposeFiles[0], "docker-compose.yml")

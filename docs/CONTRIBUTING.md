@@ -466,6 +466,34 @@ If you're creating a branded version for your organization:
 - Minimize dependencies
 - Provide clear error messages
 
+### Contributing Framework Detectors
+
+Framework detectors enable automatic detection of programming languages and frameworks. To contribute a new detector:
+
+1. **Create your detector:**
+   ```go
+   type MyDetector struct {
+       *sdk.BaseFrameworkDetector
+   }
+   ```
+
+2. **Define detection patterns:**
+   - Required files (e.g., `package.json`, `composer.json`)
+   - Optional files that increase confidence
+   - Directory patterns
+   - File content patterns
+
+3. **Add framework-specific commands:**
+   - Build, test, and run commands
+   - Framework-specific tools (e.g., artisan for Laravel)
+
+4. **Test thoroughly:**
+   - Create unit tests for detection logic
+   - Test with real-world projects
+   - Handle edge cases gracefully
+
+See the [Framework Detection Guide](framework-detection.md) for detailed information.
+
 ## Submitting Changes
 
 ### Before Submitting
