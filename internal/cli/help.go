@@ -367,6 +367,7 @@ type CommandEntry struct {
 	Aliases     []string
 	Category    string
 	IsPlugin    bool
+	IsYAML      bool   // User-defined YAML command
 	PluginName  string
 }
 
@@ -375,14 +376,30 @@ func (hc *HelpCommand) ShowHelp(rootCmd *cobra.Command) error {
 	// Load custom categories from plugins
 	hc.loadPluginCategories()
 
-	// Header
-	headerColor := color.New(color.FgWhite, color.Bold)
-	headerColor.Printf("\n%s", rootCmd.Use)
-	fmt.Printf(" - %s\n", rootCmd.Short)
+	// ASCII Art Header
+	asciiHeader := `
+   ___ _ _    _
+  / __| (_)__| |___
+ | (_ | | / _` + "`" + ` / -_)
+  \___|_|_\__,_\___|
+
+`
+	headerColor := color.New(color.FgBlue, color.Bold)
+	headerColor.Print(asciiHeader)
+
+	// Subtitle
+	subtitleColor := color.New(color.FgWhite)
+	subtitleColor.Printf("    %s\n", rootCmd.Short)
 
 	// Show context-specific information if we have project context
 	if hc.ProjectContext != nil {
 		hc.showContextInfo()
+
+		// In standalone mode, ensure YAML command categories are visible
+		if hc.ProjectContext.DevelopmentMode == context.ModeStandalone {
+			// Enable all categories that may be used in .glide.yml
+			// This is handled in shouldShowCategory but we set a flag here
+		}
 	}
 
 	// Usage
@@ -395,12 +412,22 @@ func (hc *HelpCommand) ShowHelp(rootCmd *cobra.Command) error {
 
 	// Process built-in commands
 	for _, cmd := range rootCmd.Commands() {
+		if os.Getenv("GLIDE_HELP_DEBUG") != "" {
+			fmt.Fprintf(os.Stderr, "DEBUG: Processing command '%s'\n", cmd.Name())
+		}
+
 		if cmd.Hidden {
+			if os.Getenv("GLIDE_HELP_DEBUG") != "" {
+				fmt.Fprintf(os.Stderr, "DEBUG: Skipping hidden command '%s'\n", cmd.Name())
+			}
 			continue
 		}
 
 		// Check visibility for plugin commands
 		if !hc.shouldShowCommand(cmd) {
+			if os.Getenv("GLIDE_HELP_DEBUG") != "" {
+				fmt.Fprintf(os.Stderr, "DEBUG: Command '%s' failed shouldShowCommand\n", cmd.Name())
+			}
 			continue
 		}
 
@@ -408,6 +435,13 @@ func (hc *HelpCommand) ShowHelp(rootCmd *cobra.Command) error {
 			Name:        cmd.Name(),
 			Description: cmd.Short,
 			Aliases:     cmd.Aliases,
+		}
+
+		// Check if this is a user-defined YAML command
+		if cmd.Annotations != nil {
+			if _, isYAML := cmd.Annotations["yaml_command"]; isYAML {
+				entry.IsYAML = true
+			}
 		}
 
 		// Get category from command annotations (set by registry)
@@ -423,6 +457,10 @@ func (hc *HelpCommand) ShowHelp(rootCmd *cobra.Command) error {
 			}
 		}
 		entry.Category = category
+
+		if os.Getenv("GLIDE_HELP_DEBUG") != "" {
+			fmt.Fprintf(os.Stderr, "DEBUG: Command '%s' has category '%s'\n", cmd.Name(), category)
+		}
 
 		// Special handling for plugin commands
 		if strings.HasPrefix(cmd.Use, "plugin:") || cmd.Annotations != nil && cmd.Annotations["plugin"] != "" {
@@ -464,10 +502,19 @@ func (hc *HelpCommand) ShowHelp(rootCmd *cobra.Command) error {
 			continue
 		}
 
-		// Context-aware filtering
-		if !hc.shouldShowCategory(category) {
+		// Check if any commands in this category are user-defined YAML commands
+		hasYAMLCommands := false
+		for _, cmd := range commands {
+			if cmd.IsYAML {
+				hasYAMLCommands = true
+				break
+			}
+		}
+
+		// Context-aware filtering - but ALWAYS show categories with user-defined commands
+		if !hasYAMLCommands && !hc.shouldShowCategory(category) {
 			if os.Getenv("GLIDE_HELP_DEBUG") != "" {
-				fmt.Fprintf(os.Stderr, "DEBUG HELP: Skipping category %s (shouldShowCategory=false)\n", category)
+				fmt.Fprintf(os.Stderr, "DEBUG HELP: Skipping category %s (shouldShowCategory=false, no YAML commands)\n", category)
 			}
 			continue
 		}
@@ -738,11 +785,14 @@ func (hc *HelpCommand) shouldShowCategory(category string) bool {
 		}
 	}
 
-	// In standalone mode, hide project-oriented categories
+	// In standalone mode, hide project-oriented built-in categories
+	// Note: Categories with user-defined YAML commands will still be shown
+	// because the display logic bypasses this filter for categories with YAML commands
 	if hc.ProjectContext.DevelopmentMode == context.ModeStandalone {
 		switch category {
 		case "project", "docker", "testing", "database":
-			// These are Git/project-oriented and don't make sense in standalone
+			// These built-in commands don't make sense in standalone (non-Git) mode
+			// But YAML commands in these categories will still be shown
 			return false
 		case "setup":
 			// In standalone mode, only completion might be useful
@@ -761,11 +811,10 @@ func (hc *HelpCommand) shouldShowCategory(category string) bool {
 
 	case "docker", "testing", "developer", "database":
 		// Don't show development commands when not in a project
-		if hc.ProjectContext.DevelopmentMode == "" {
+		if hc.ProjectContext == nil || hc.ProjectContext.DevelopmentMode == "" {
 			return false
 		}
-		// Always show these categories - plugin commands may need them
-		// The previous logic was too restrictive for plugins
+		// Show these categories in project modes
 		return true
 
 	default:
@@ -776,6 +825,14 @@ func (hc *HelpCommand) shouldShowCategory(category string) bool {
 
 // shouldShowCommand checks if a command should be shown based on its visibility setting
 func (hc *HelpCommand) shouldShowCommand(cmd *cobra.Command) bool {
+	// YAML commands (user-defined) are ALWAYS shown, regardless of mode or category
+	// Users should have full control over their custom commands
+	if cmd.Annotations != nil {
+		if _, isYAML := cmd.Annotations["yaml_command"]; isYAML {
+			return true
+		}
+	}
+
 	// Special handling for specific commands
 	switch cmd.Name() {
 	case "setup":

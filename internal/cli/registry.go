@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+	"os"
 	"sync"
 
 	"github.com/ivannovak/glide/internal/config"
@@ -163,6 +165,12 @@ func (r *Registry) AddYAMLCommand(name string, cmd *config.Command) error {
 			},
 		}
 
+		// Mark as YAML command for filtering logic
+		if cobraCmd.Annotations == nil {
+			cobraCmd.Annotations = make(map[string]string)
+		}
+		cobraCmd.Annotations["yaml_command"] = "true"
+
 		// Set alias if defined
 		if cmd.Alias != "" {
 			cobraCmd.Aliases = []string{cmd.Alias}
@@ -200,6 +208,10 @@ func (r *Registry) AddYAMLCommand(name string, cmd *config.Command) error {
 		case "help":
 			category = CategoryHelp
 		default:
+			// Warn about unrecognized category in standalone mode
+			if os.Getenv("GLIDE_DEBUG") != "" {
+				fmt.Fprintf(os.Stderr, "Warning: Unrecognized category '%s' for command '%s', using default\n", cmd.Category, name)
+			}
 			category = CategoryYAML
 		}
 	}
