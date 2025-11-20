@@ -259,4 +259,3 @@ func TestPHPDetector(t *testing.T) {
 		}
 	})
 }
-
