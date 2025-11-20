@@ -225,7 +225,7 @@ func (d *NodeDetector) updateCommandsForPackageManager(result *sdk.DetectionResu
 func (d *NodeDetector) addScriptsAsCommands(result *sdk.DetectionResult, pkg *PackageJSON) {
 	pm := result.Metadata["package_manager"]
 
-	for name, script := range pkg.Scripts {
+	for name := range pkg.Scripts {
 		// Skip if it's already a base command
 		if _, exists := result.Commands[name]; exists {
 			continue

@@ -9,23 +9,22 @@ import (
 	"github.com/ivannovak/glide/internal/detection"
 	"github.com/ivannovak/glide/internal/shell"
 	"github.com/ivannovak/glide/pkg/plugin/sdk"
-	"github.com/ivannovak/glide/pkg/registry"
 	"github.com/spf13/cobra"
 )
 
 // FrameworkCommandInjector handles injection of framework-detected commands
 type FrameworkCommandInjector struct {
 	detector *detection.FrameworkDetector
-	registry *registry.Registry
-	shell    shell.Executor
+	registry *Registry
+	shell    *shell.Executor
 }
 
 // NewFrameworkCommandInjector creates a new command injector
-func NewFrameworkCommandInjector(detector *detection.FrameworkDetector, reg *registry.Registry) *FrameworkCommandInjector {
+func NewFrameworkCommandInjector(detector *detection.FrameworkDetector, reg *Registry) *FrameworkCommandInjector {
 	return &FrameworkCommandInjector{
 		detector: detector,
 		registry: reg,
-		shell:    shell.NewExecutor(),
+		shell:    shell.NewExecutor(shell.Options{}),
 	}
 }
 
@@ -40,22 +39,27 @@ func (fci *FrameworkCommandInjector) InjectCommands(projectPath string) error {
 	// Register each command
 	for name, def := range commands {
 		// Skip if command already exists in registry
-		if fci.registry.Exists(name) {
+		if fci.registry.Has(name) {
 			continue
 		}
 
-		// Create cobra command for the framework command
-		cmd := fci.createFrameworkCommand(name, def)
+		// Capture variables for closure
+		cmdName := name
+		cmdDef := def
 
-		// Register with the registry
-		metadata := registry.Metadata{
-			Name:        name,
-			Category:    registry.CategoryFramework,
-			Description: def.Description,
-			Source:      "framework-detection",
+		// Create cobra command for the framework command
+		cmdFactory := func() *cobra.Command {
+			return fci.createFrameworkCommand(cmdName, cmdDef)
 		}
 
-		fci.registry.RegisterCommand(name, cmd, metadata)
+		// Register with the registry
+		metadata := Metadata{
+			Name:        name,
+			Category:    CategoryFramework,
+			Description: def.Description,
+		}
+
+		fci.registry.Register(name, cmdFactory, metadata)
 	}
 
 	return nil
@@ -98,18 +102,33 @@ func (fci *FrameworkCommandInjector) executeFrameworkCommand(def sdk.CommandDefi
 		env = append(env, fmt.Sprintf("%s=%s", key, value))
 	}
 
+	// Parse command and arguments
+	parts := strings.Fields(cmdStr)
+	if len(parts) == 0 {
+		return fmt.Errorf("empty command")
+	}
+
+	// Create shell command
+	cmd := &shell.Command{
+		Name:        parts[0],
+		Args:        parts[1:],
+		Environment: env,
+		Mode:        shell.ModeCapture,
+		InheritEnv:  true,
+	}
+
 	// Execute the command
-	result, err := fci.shell.Execute(cmdStr, shell.WithEnv(env))
+	result, err := fci.shell.Execute(cmd)
 	if err != nil {
 		return fmt.Errorf("failed to execute framework command: %w", err)
 	}
 
 	// Print output
-	if result.Output != "" {
-		fmt.Print(result.Output)
+	if len(result.Stdout) > 0 {
+		fmt.Print(string(result.Stdout))
 	}
-	if result.Error != "" {
-		fmt.Fprint(os.Stderr, result.Error)
+	if len(result.Stderr) > 0 {
+		fmt.Fprint(os.Stderr, string(result.Stderr))
 	}
 
 	// Return error if command failed

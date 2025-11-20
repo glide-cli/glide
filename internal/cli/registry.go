@@ -41,7 +41,8 @@ const (
 	CategoryProject   Category = "project"
 	CategoryDebug     Category = "debug"
 	CategoryHelp      Category = "help"
-	CategoryYAML      Category = "yaml" // User-defined YAML commands
+	CategoryYAML      Category = "yaml"      // User-defined YAML commands
+	CategoryFramework Category = "framework" // Framework-detected commands
 )
 
 // NewRegistry creates a new command registry

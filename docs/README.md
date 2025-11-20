@@ -8,6 +8,8 @@ Welcome to the Glide CLI documentation. This directory contains user-facing docu
 Essential guides for users and contributors:
 
 - **[Command Reference](command-reference.md)** - Complete list of all Glide commands and their usage
+- **[Framework Detection](framework-detection.md)** - Automatic framework and language detection system
+- **[Plugin Development](plugin-development.md)** - Guide for creating Glide plugins
 - **[Troubleshooting Guide](troubleshooting.md)** - Common issues and their solutions
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the Glide project
 
