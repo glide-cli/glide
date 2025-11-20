@@ -67,7 +67,10 @@ type ProjectContext struct {
 	IsWorktree   bool   // True if in worktrees/*/ (multi-worktree only)
 	WorktreeName string // Name of current worktree if applicable
 
-	// Docker configuration
+	// Plugin extensions
+	Extensions map[string]interface{} // Plugin-provided context extensions
+
+	// Docker configuration (DEPRECATED: Use Extensions["docker"] instead)
 	ComposeFiles     []string                   // Resolved docker-compose files
 	ComposeOverride  string                     // Path to override file
 	DockerRunning    bool                       // Is Docker daemon running
@@ -108,4 +111,14 @@ func (c *ProjectContext) GetComposeCommand() []string {
 		args = append(args, "-f", file)
 	}
 	return args
+}
+
+// GetDockerContext retrieves Docker-specific context data
+// This is a helper method that accesses the Docker extension data
+// Returns nil if Docker extension is not present
+func (c *ProjectContext) GetDockerContext() interface{} {
+	if c.Extensions == nil {
+		return nil
+	}
+	return c.Extensions["docker"]
 }

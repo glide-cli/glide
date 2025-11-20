@@ -111,6 +111,13 @@ func (b *Builder) registerCommands() {
 	})
 }
 
+// registerPluginCommands registers commands from built-in plugins
+func (b *Builder) registerPluginCommands() {
+	// This will be called by plugins to register their commands
+	// For now, this is a placeholder for when plugins are loaded
+	// Future: Load built-in plugins and register their commands
+}
+
 // Build creates the root command with all subcommands
 func (b *Builder) Build() *cobra.Command {
 	rootCmd := &cobra.Command{
