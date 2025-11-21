@@ -1,6 +1,7 @@
 package main
 
 import (
+	stdcontext "context"
 	"fmt"
 	"os"
 
@@ -42,8 +43,16 @@ func Execute() error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Detect project context
-	ctx := context.Detect()
+	// Get list of registered plugins for context detection
+	// We pass them as interface{} to avoid import cycles
+	pluginList := plugin.List()
+	extensionProviders := make([]interface{}, len(pluginList))
+	for i, p := range pluginList {
+		extensionProviders[i] = p
+	}
+
+	// Detect project context with plugin extensions
+	ctx := context.DetectWithExtensions(extensionProviders)
 
 	// Create application with dependencies
 	application := app.NewApplication(
@@ -131,6 +140,11 @@ func Execute() error {
 		pluginConfig = cfg.Plugins
 	}
 	plugin.SetConfig(pluginConfig)
+
+	// Set the context on the root command so plugins can access it
+	// This is done via context.Context to avoid import cycles
+	rootCmdCtx := stdcontext.WithValue(stdcontext.Background(), "project_context", ctx)
+	rootCmd.SetContext(rootCmdCtx)
 
 	// Load all registered build-time plugins
 	if err := plugin.LoadAll(rootCmd); err != nil {
