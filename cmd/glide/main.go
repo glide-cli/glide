@@ -17,6 +17,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// contextKey is a custom type for context keys to avoid collisions
+type contextKey string
+
+const (
+	projectContextKey contextKey = "project_context"
+)
+
 var (
 	// CLI flags
 	cfgFile string
@@ -143,7 +150,7 @@ func Execute() error {
 
 	// Set the context on the root command so plugins can access it
 	// This is done via context.Context to avoid import cycles
-	rootCmdCtx := stdcontext.WithValue(stdcontext.Background(), "project_context", ctx)
+	rootCmdCtx := stdcontext.WithValue(stdcontext.Background(), projectContextKey, ctx)
 	rootCmd.SetContext(rootCmdCtx)
 
 	// Load all registered build-time plugins
