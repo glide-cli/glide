@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/ivannovak/glide/internal/context"
-	"github.com/ivannovak/glide/internal/docker"
+	"github.com/ivannovak/glide/plugins/docker/resolver"
 )
 
 // Container represents a Docker container
@@ -29,14 +29,14 @@ type Container struct {
 // ContainerManager manages Docker containers
 type ContainerManager struct {
 	ctx      *context.ProjectContext
-	resolver *docker.Resolver
+	resolver *resolver.Resolver
 }
 
 // NewContainerManager creates a new container manager
 func NewContainerManager(ctx *context.ProjectContext) *ContainerManager {
 	return &ContainerManager{
 		ctx:      ctx,
-		resolver: docker.NewResolver(ctx),
+		resolver: resolver.NewResolver(ctx),
 	}
 }
 

@@ -8,11 +8,11 @@ import (
 	"syscall"
 
 	"github.com/ivannovak/glide/internal/context"
-	"github.com/ivannovak/glide/internal/docker"
 	"github.com/ivannovak/glide/internal/shell"
 	glideErrors "github.com/ivannovak/glide/pkg/errors"
 	"github.com/ivannovak/glide/pkg/output"
 	"github.com/ivannovak/glide/pkg/plugin/sdk"
+	"github.com/ivannovak/glide/plugins/docker/resolver"
 	"github.com/spf13/cobra"
 )
 
@@ -88,8 +88,8 @@ func executeDockerCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	// Resolve Docker compose files
-	resolver := docker.NewResolver(ctx)
-	if err := resolver.Resolve(); err != nil {
+	r := resolver.NewResolver(ctx)
+	if err := r.Resolve(); err != nil {
 		return glideErrors.Wrap(err, "failed to resolve Docker configuration",
 			glideErrors.WithSuggestions(
 				"Check if docker-compose.yml exists",
@@ -111,7 +111,7 @@ func executeDockerCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	// Build the docker-compose command
-	dockerArgs := buildDockerCommand(ctx, resolver, args)
+	dockerArgs := buildDockerCommand(ctx, r, args)
 
 	// Check if this is an interactive command
 	isInteractive := isInteractiveCommand(args)
@@ -121,18 +121,18 @@ func executeDockerCommand(cmd *cobra.Command, args []string) error {
 }
 
 // buildDockerCommand constructs the full docker-compose command
-func buildDockerCommand(ctx *context.ProjectContext, resolver *docker.Resolver, args []string) []string {
+func buildDockerCommand(ctx *context.ProjectContext, r *resolver.Resolver, args []string) []string {
 	// Start with compose subcommand
 	dockerArgs := []string{"compose"}
 
 	// Add compose file flags
-	for _, file := range resolver.GetRelativeComposeFiles() {
+	for _, file := range r.GetRelativeComposeFiles() {
 		dockerArgs = append(dockerArgs, "-f", file)
 	}
 
 	// Add project name if in worktree
 	if ctx.IsWorktree && ctx.WorktreeName != "" {
-		projectName := resolver.GetComposeProjectName()
+		projectName := r.GetComposeProjectName()
 		dockerArgs = append(dockerArgs, "-p", projectName)
 	}
 

@@ -5,7 +5,7 @@ import (
 	"os/exec"
 
 	glidectx "github.com/ivannovak/glide/internal/context"
-	"github.com/ivannovak/glide/internal/docker"
+	"github.com/ivannovak/glide/plugins/docker/resolver"
 )
 
 // DockerDetector implements the SDK ContextExtension interface for Docker detection
@@ -36,9 +36,9 @@ func (d *DockerDetector) Detect(ctx context.Context, projectRoot string) (interf
 	tempCtx.DevelopmentMode = d.detectDevelopmentMode(projectRoot)
 	tempCtx.Location = glidectx.LocationProject
 
-	// Use existing Docker resolver for detection
-	resolver := docker.NewResolver(tempCtx)
-	if err := resolver.Resolve(); err != nil {
+	// Use Docker resolver for detection
+	r := resolver.NewResolver(tempCtx)
+	if err := r.Resolve(); err != nil {
 		// If resolution fails, Docker is not available
 		return nil, nil
 	}

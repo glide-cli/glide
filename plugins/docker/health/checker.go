@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/ivannovak/glide/internal/context"
-	"github.com/ivannovak/glide/internal/docker"
 	"github.com/ivannovak/glide/plugins/docker/container"
+	"github.com/ivannovak/glide/plugins/docker/resolver"
 )
 
 // HealthStatus represents the health status of a container
@@ -45,7 +45,7 @@ type ServiceHealth struct {
 // HealthMonitor monitors container health
 type HealthMonitor struct {
 	ctx      *context.ProjectContext
-	resolver *docker.Resolver
+	resolver *resolver.Resolver
 	manager  *container.ContainerManager
 }
 
@@ -53,7 +53,7 @@ type HealthMonitor struct {
 func NewHealthMonitor(ctx *context.ProjectContext) *HealthMonitor {
 	return &HealthMonitor{
 		ctx:      ctx,
-		resolver: docker.NewResolver(ctx),
+		resolver: resolver.NewResolver(ctx),
 		manager:  container.NewContainerManager(ctx),
 	}
 }
