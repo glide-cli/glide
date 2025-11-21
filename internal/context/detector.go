@@ -13,6 +13,12 @@ type Detector struct {
 	modeDetector       DevelopmentModeDetector
 	locationIdentifier LocationIdentifier
 	composeResolver    ComposeFileResolver
+	extensionRegistry  ExtensionRegistry
+}
+
+// ExtensionRegistry interface for plugin-provided context extensions
+type ExtensionRegistry interface {
+	DetectAll(projectRoot string) (map[string]interface{}, error)
 }
 
 // NewDetector creates a new context detector with default strategies
@@ -72,10 +78,16 @@ func (d *Detector) SetComposeResolver(resolver ComposeFileResolver) {
 	d.composeResolver = resolver
 }
 
+// SetExtensionRegistry sets a custom extension registry
+func (d *Detector) SetExtensionRegistry(registry ExtensionRegistry) {
+	d.extensionRegistry = registry
+}
+
 // Detect analyzes the current environment and returns project context
 func (d *Detector) Detect() (*ProjectContext, error) {
 	ctx := &ProjectContext{
 		WorkingDir: d.workingDir,
+		Extensions: make(map[string]interface{}),
 	}
 
 	// Find project root
@@ -92,11 +104,29 @@ func (d *Detector) Detect() (*ProjectContext, error) {
 	// Identify current location
 	ctx.Location = d.locationIdentifier.IdentifyLocation(ctx, d.workingDir)
 
-	// Resolve docker-compose files
-	ctx.ComposeFiles = d.composeResolver.ResolveFiles(ctx)
+	// Detect plugin-provided context extensions
+	if d.extensionRegistry != nil {
+		extensions, err := d.extensionRegistry.DetectAll(ctx.ProjectRoot)
+		if err == nil && extensions != nil {
+			ctx.Extensions = extensions
+		}
+	}
 
-	// Check Docker daemon status
-	d.checkDockerStatus(ctx)
+	// Populate compatibility fields from extensions
+	PopulateCompatibilityFields(ctx)
+
+	// Resolve docker-compose files (legacy fallback)
+	if len(ctx.ComposeFiles) == 0 {
+		ctx.ComposeFiles = d.composeResolver.ResolveFiles(ctx)
+	}
+
+	// Check Docker daemon status (legacy fallback)
+	if !ctx.DockerRunning {
+		d.checkDockerStatus(ctx)
+	}
+
+	// Update extensions from compatibility fields
+	UpdateExtensionsFromCompatibility(ctx)
 
 	return ctx, nil
 }
