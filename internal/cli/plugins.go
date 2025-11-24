@@ -426,6 +426,11 @@ func getLatestRelease(repo string) (*GitHubRelease, error) {
 
 // downloadFile downloads a file from a URL to a temporary file
 func downloadFile(url string) (string, error) {
+	// Validate URL to ensure it's from GitHub (security: G107)
+	if !isValidGitHubDownloadURL(url) {
+		return "", fmt.Errorf("invalid download URL: must be from github.com")
+	}
+
 	// Create temporary file
 	tmpFile, err := os.CreateTemp("", "glide-plugin-*")
 	if err != nil {
@@ -433,7 +438,7 @@ func downloadFile(url string) (string, error) {
 	}
 	defer tmpFile.Close()
 
-	// Download file
+	// Download file #nosec G107 - URL is validated to be from github.com
 	resp, err := http.Get(url)
 	if err != nil {
 		os.Remove(tmpFile.Name())
@@ -453,4 +458,10 @@ func downloadFile(url string) (string, error) {
 	}
 
 	return tmpFile.Name(), nil
+}
+
+// isValidGitHubDownloadURL validates that a URL is from GitHub releases
+func isValidGitHubDownloadURL(url string) bool {
+	// Must start with https://github.com/ or https://api.github.com/
+	return len(url) > 19 && (url[:19] == "https://github.com/" || url[:23] == "https://api.github.com/")
 }
