@@ -170,21 +170,21 @@ jobs:
         ```
         
         ### Manual Installation
-        
+
         1. Download the appropriate binary for your system from the assets below
-        2. Make it executable: `chmod +x glid-*`
-        3. Move to your PATH: `sudo mv glid-* /usr/local/bin/glid`
-        
+        2. Make it executable: `chmod +x glide-*`
+        3. Move to your PATH: `sudo mv glide-* /usr/local/bin/glide`
+
         ### Verify Installation
         ```bash
-        glid version
+        glide version
         ```
         
         ## Checksums
         
         All binaries include SHA256 checksums for verification:
         ```bash
-        sha256sum -c glid-*.sha256
+        sha256sum -c glide-*.sha256
         ```
         EOF
 
@@ -195,7 +195,7 @@ jobs:
         name: Glide CLI ${{ steps.version.outputs.version }}
         body_path: RELEASE_NOTES.md
         files: |
-          ./artifacts/glid-*
+          ./artifacts/glide-*
         draft: false
         prerelease: ${{ contains(steps.version.outputs.version, 'alpha') || contains(steps.version.outputs.version, 'beta') || contains(steps.version.outputs.version, 'rc') }}
 

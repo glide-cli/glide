@@ -1,10 +1,14 @@
 package cli
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"text/tabwriter"
 
 	"github.com/ivannovak/glide/pkg/branding"
@@ -175,72 +179,156 @@ func newPluginInfoCommand() *cobra.Command {
 
 // newPluginInstallCommand installs a new plugin
 func newPluginInstallCommand() *cobra.Command {
-	var source string
-
 	cmd := &cobra.Command{
-		Use:   "install <plugin-path>",
-		Short: "Install a plugin from a local file",
-		Args:  cobra.ExactArgs(1),
+		Use:   "install <plugin-path-or-url>",
+		Short: "Install a plugin from a local file or GitHub release",
+		Long: `Install a plugin from a local file or GitHub repository.
+
+Examples:
+  # Install from GitHub (downloads latest release)
+  glide plugins install github.com/ivannovak/glide-plugin-go
+
+  # Install from local file
+  glide plugins install ./glide-plugin-go
+
+Supported formats:
+  - github.com/owner/repo (downloads latest release binary)
+  - /path/to/plugin-binary (installs local file)`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pluginPath := args[0]
+			source := args[0]
 
-			// Verify plugin exists
-			if _, err := os.Stat(pluginPath); err != nil {
-				return fmt.Errorf("plugin file not found: %w", err)
+			// Check if source is a GitHub URL
+			if isGitHubURL(source) {
+				return installFromGitHub(cmd.Context(), source)
 			}
 
-			// Get plugin name from path
-			pluginName := filepath.Base(pluginPath)
-
-			// Determine installation directory
-			installDir := branding.GetGlobalPluginDir()
-			if err := os.MkdirAll(installDir, 0755); err != nil {
-				return fmt.Errorf("failed to create plugins directory: %w", err)
-			}
-
-			// Copy plugin to installation directory
-			destPath := filepath.Join(installDir, pluginName)
-
-			// Copy file
-			src, err := os.Open(pluginPath)
-			if err != nil {
-				return fmt.Errorf("failed to open source file: %w", err)
-			}
-			defer src.Close()
-
-			dst, err := os.Create(destPath)
-			if err != nil {
-				return fmt.Errorf("failed to create destination file: %w", err)
-			}
-			defer dst.Close()
-
-			if _, err := io.Copy(dst, src); err != nil {
-				return fmt.Errorf("failed to copy plugin: %w", err)
-			}
-
-			// Make plugin executable
-			if err := os.Chmod(destPath, 0755); err != nil {
-				return fmt.Errorf("failed to make plugin executable: %w", err)
-			}
-
-			// Load and validate plugin
-			manager := sdk.NewManager(nil)
-			if err := manager.LoadPlugin(destPath); err != nil {
-				// Remove plugin if validation fails
-				os.Remove(destPath)
-				return fmt.Errorf("plugin validation failed: %w", err)
-			}
-
-			fmt.Printf("Plugin '%s' installed successfully to %s\n", pluginName, destPath)
-			fmt.Println("Run 'glide plugins list' to see all available plugins")
-
-			return nil
+			// Install from local file
+			return installFromFile(source)
 		},
 	}
 
-	cmd.Flags().StringVar(&source, "source", "", "Source URL or path for the plugin")
-
 	return cmd
+}
+
+// isGitHubURL checks if the source looks like a GitHub repository
+func isGitHubURL(source string) bool {
+	return len(source) > 11 && (source[:11] == "github.com/" || source[:19] == "https://github.com/")
+}
+
+// installFromGitHub downloads and installs a plugin from GitHub releases
+func installFromGitHub(ctx context.Context, repo string) error {
+	// Parse repository (remove https:// prefix if present)
+	repo = filepath.Base(filepath.Dir(repo)) + "/" + filepath.Base(repo)
+	if repo[:11] == "github.com/" {
+		repo = repo[11:]
+	}
+
+	fmt.Printf("Installing plugin from github.com/%s...\n", repo)
+
+	// Get latest release
+	release, err := getLatestRelease(repo)
+	if err != nil {
+		return fmt.Errorf("failed to get latest release: %w", err)
+	}
+
+	// Determine platform-specific binary name
+	binaryName := filepath.Base(repo) + "-" + runtime.GOOS + "-" + runtime.GOARCH
+	if runtime.GOOS == "windows" {
+		binaryName += ".exe"
+	}
+
+	// Find matching asset
+	var downloadURL string
+	for _, asset := range release.Assets {
+		if asset.Name == binaryName {
+			downloadURL = asset.BrowserDownloadURL
+			break
+		}
+	}
+
+	if downloadURL == "" {
+		return fmt.Errorf("no binary found for %s-%s in release %s", runtime.GOOS, runtime.GOARCH, release.TagName)
+	}
+
+	// Download binary
+	fmt.Printf("Downloading %s...\n", binaryName)
+	tempFile, err := downloadFile(downloadURL)
+	if err != nil {
+		return fmt.Errorf("failed to download plugin: %w", err)
+	}
+	defer os.Remove(tempFile)
+
+	// Install from temporary file
+	return installFromFile(tempFile)
+}
+
+// installFromFile installs a plugin from a local file
+func installFromFile(pluginPath string) error {
+	// Verify plugin exists
+	if _, err := os.Stat(pluginPath); err != nil {
+		return fmt.Errorf("plugin file not found: %w", err)
+	}
+
+	// Get plugin name from path (remove platform suffix if present)
+	pluginName := filepath.Base(pluginPath)
+	// Remove -darwin-arm64, -linux-amd64, etc. suffixes
+	for _, os := range []string{"darwin", "linux", "windows"} {
+		for _, arch := range []string{"amd64", "arm64", "386"} {
+			suffix := "-" + os + "-" + arch
+			if len(pluginName) > len(suffix) && pluginName[len(pluginName)-len(suffix):] == suffix {
+				pluginName = pluginName[:len(pluginName)-len(suffix)]
+			}
+			suffixExe := suffix + ".exe"
+			if len(pluginName) > len(suffixExe) && pluginName[len(pluginName)-len(suffixExe):] == suffixExe {
+				pluginName = pluginName[:len(pluginName)-len(suffixExe)]
+			}
+		}
+	}
+
+	// Determine installation directory
+	installDir := branding.GetGlobalPluginDir()
+	if err := os.MkdirAll(installDir, 0755); err != nil {
+		return fmt.Errorf("failed to create plugins directory: %w", err)
+	}
+
+	// Copy plugin to installation directory
+	destPath := filepath.Join(installDir, pluginName)
+
+	// Copy file
+	src, err := os.Open(pluginPath)
+	if err != nil {
+		return fmt.Errorf("failed to open source file: %w", err)
+	}
+	defer src.Close()
+
+	dst, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("failed to create destination file: %w", err)
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, src); err != nil {
+		return fmt.Errorf("failed to copy plugin: %w", err)
+	}
+
+	// Make plugin executable
+	if err := os.Chmod(destPath, 0755); err != nil {
+		return fmt.Errorf("failed to make plugin executable: %w", err)
+	}
+
+	// Load and validate plugin
+	manager := sdk.NewManager(nil)
+	if err := manager.LoadPlugin(destPath); err != nil {
+		// Remove plugin if validation fails
+		os.Remove(destPath)
+		return fmt.Errorf("plugin validation failed: %w", err)
+	}
+
+	fmt.Printf("Plugin '%s' installed successfully to %s\n", pluginName, destPath)
+	fmt.Println("Run 'glide plugins list' to see all available plugins")
+
+	return nil
 }
 
 // newPluginRemoveCommand removes an installed plugin
@@ -294,4 +382,75 @@ func newPluginReloadCommand() *cobra.Command {
 			return nil
 		},
 	}
+}
+
+// GitHubRelease represents a GitHub release
+type GitHubRelease struct {
+	TagName string `json:"tag_name"`
+	Assets  []struct {
+		Name               string `json:"name"`
+		BrowserDownloadURL string `json:"browser_download_url"`
+	} `json:"assets"`
+}
+
+// getLatestRelease fetches the latest release from GitHub
+func getLatestRelease(repo string) (*GitHubRelease, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set User-Agent header (required by GitHub API)
+	req.Header.Set("User-Agent", "glide-cli")
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
+	}
+
+	var release GitHubRelease
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return nil, err
+	}
+
+	return &release, nil
+}
+
+// downloadFile downloads a file from a URL to a temporary file
+func downloadFile(url string) (string, error) {
+	// Create temporary file
+	tmpFile, err := os.CreateTemp("", "glide-plugin-*")
+	if err != nil {
+		return "", err
+	}
+	defer tmpFile.Close()
+
+	// Download file
+	resp, err := http.Get(url)
+	if err != nil {
+		os.Remove(tmpFile.Name())
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		os.Remove(tmpFile.Name())
+		return "", fmt.Errorf("download failed with status %d", resp.StatusCode)
+	}
+
+	// Copy to temp file
+	if _, err := io.Copy(tmpFile, resp.Body); err != nil {
+		os.Remove(tmpFile.Name())
+		return "", err
+	}
+
+	return tmpFile.Name(), nil
 }
