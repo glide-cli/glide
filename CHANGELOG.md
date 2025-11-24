@@ -1,3 +1,31 @@
+## [2.0.0](https://github.com/ivannovak/glide/compare/v1.3.0...v2.0.0) (2025-11-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* Plugin installation now supports downloading from GitHub releases in addition to local files. This enables users to install plugins directly from GitHub without building from source.
+
+Changes:
+- Fix release workflow binary naming (glid-* -> glide-*)
+- Add GitHub API integration for downloading release binaries
+- Enhance `glide plugins install` to detect and download from github.com URLs
+- Auto-detect platform (OS/arch) for binary downloads
+- Add comprehensive help text with usage examples
+
+Examples:
+  glide plugins install github.com/ivannovak/glide-plugin-go
+  glide plugins install ./path/to/local/binary
+
+### Features
+
+* add GitHub release binary downloads for plugins ([cb1d919](https://github.com/ivannovak/glide/commit/cb1d919f2a9fe97d4ca444af4df2a659840d9907))
+
+
+### Bug Fixes
+
+* add URL validation for GitHub downloads ([0648d9c](https://github.com/ivannovak/glide/commit/0648d9cf5330d1e2e0e01c19db524bf8b86c7c99))
+* exclude G107 from gosec security scan ([b584549](https://github.com/ivannovak/glide/commit/b584549b78b8b7bc07a42b43c6d693dc501196df))
+
 ## [1.3.0](https://github.com/ivannovak/glide/compare/v1.2.0...v1.3.0) (2025-11-21)
 
 
