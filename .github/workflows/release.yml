@@ -20,13 +20,11 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  test:
-    name: Test Before Release
-    uses: ./.github/workflows/ci.yml  # Reuse CI validation
+  # Note: Tests are run by semantic-release workflow before creating the release
+  # No need to run them again here
 
   build:
     name: Build Cross-Platform Binaries
-    needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -201,7 +199,6 @@ jobs:
 
   docker:
     name: Build and Push Docker Image
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
