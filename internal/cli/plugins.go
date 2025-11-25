@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/ivannovak/glide/v2/pkg/branding"
@@ -29,6 +30,7 @@ func NewPluginsCommand() *cobra.Command {
 		newPluginListCommand(),
 		newPluginInfoCommand(),
 		newPluginInstallCommand(),
+		newPluginUpdateCommand(),
 		newPluginRemoveCommand(),
 		newPluginReloadCommand(),
 	)
@@ -327,6 +329,176 @@ func installFromFile(pluginPath string) error {
 
 	fmt.Printf("Plugin '%s' installed successfully to %s\n", pluginName, destPath)
 	fmt.Println("Run 'glide plugins list' to see all available plugins")
+
+	return nil
+}
+
+// newPluginUpdateCommand updates installed plugins
+func newPluginUpdateCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update [plugin-name]",
+		Short: "Update installed plugins to the latest version",
+		Long: `Update one or all installed plugins to their latest versions from GitHub.
+
+Examples:
+  # Update all plugins
+  glide plugins update
+
+  # Update a specific plugin
+  glide plugins update go`,
+		Aliases: []string{"upgrade"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			manager := sdk.NewManager(nil)
+
+			// Discover plugins
+			if err := manager.DiscoverPlugins(); err != nil {
+				return fmt.Errorf("failed to discover plugins: %w", err)
+			}
+
+			plugins := manager.ListPlugins()
+			if len(plugins) == 0 {
+				fmt.Println("No plugins installed.")
+				return nil
+			}
+
+			// Determine which plugins to update
+			var pluginsToUpdate []*sdk.LoadedPlugin
+			if len(args) > 0 {
+				// Update specific plugin
+				pluginName := args[0]
+				plugin, err := manager.GetPlugin(pluginName)
+				if err != nil {
+					return fmt.Errorf("plugin '%s' not found", pluginName)
+				}
+				pluginsToUpdate = append(pluginsToUpdate, plugin)
+			} else {
+				// Update all plugins
+				pluginsToUpdate = plugins
+			}
+
+			// Update each plugin
+			updatedCount := 0
+			for _, plugin := range pluginsToUpdate {
+				metadata := plugin.Metadata
+
+				// Check if plugin has Homepage (GitHub URL)
+				if metadata.Homepage == "" {
+					fmt.Printf("⚠️  %s: No homepage specified, skipping\n", metadata.Name)
+					continue
+				}
+
+				// Parse GitHub repo from homepage
+				repo := extractGitHubRepo(metadata.Homepage)
+				if repo == "" {
+					fmt.Printf("⚠️  %s: Homepage is not a GitHub URL, skipping\n", metadata.Name)
+					continue
+				}
+
+				fmt.Printf("Checking %s...\n", metadata.Name)
+
+				// Get latest release
+				release, err := getLatestRelease(repo)
+				if err != nil {
+					fmt.Printf("❌ %s: Failed to check for updates: %v\n", metadata.Name, err)
+					continue
+				}
+
+				// Compare versions
+				if release.TagName == metadata.Version || release.TagName == "v"+metadata.Version {
+					fmt.Printf("✓ %s is already up to date (%s)\n", metadata.Name, metadata.Version)
+					continue
+				}
+
+				fmt.Printf("📦 %s: %s → %s\n", metadata.Name, metadata.Version, release.TagName)
+
+				// Download and install
+				if err := installPluginFromRelease(plugin.Path, repo, release); err != nil {
+					fmt.Printf("❌ %s: Update failed: %v\n", metadata.Name, err)
+					continue
+				}
+
+				fmt.Printf("✅ %s updated successfully\n", metadata.Name)
+				updatedCount++
+			}
+
+			if updatedCount == 0 {
+				fmt.Println("\nNo plugins were updated.")
+			} else {
+				fmt.Printf("\n✅ Updated %d plugin(s). Run 'glide plugins reload' to reload plugins.\n", updatedCount)
+			}
+
+			return nil
+		},
+	}
+
+	return cmd
+}
+
+// extractGitHubRepo extracts owner/repo from a GitHub URL
+func extractGitHubRepo(homepage string) string {
+	// Remove protocol
+	homepage = strings.TrimPrefix(homepage, "https://")
+	homepage = strings.TrimPrefix(homepage, "http://")
+
+	// Check if it's a GitHub URL
+	if !strings.HasPrefix(homepage, "github.com/") {
+		return ""
+	}
+
+	// Extract owner/repo (remove github.com/)
+	path := homepage[11:] // len("github.com/") = 11
+
+	// Split by / and take first two parts
+	parts := strings.Split(path, "/")
+	if len(parts) < 2 {
+		return ""
+	}
+
+	return parts[0] + "/" + parts[1]
+}
+
+// installPluginFromRelease installs a plugin from a GitHub release
+func installPluginFromRelease(existingPath, repo string, release *GitHubRelease) error {
+	// Determine platform-specific binary name
+	pluginName := filepath.Base(repo)
+	binaryName := pluginName + "-" + runtime.GOOS + "-" + runtime.GOARCH
+	if runtime.GOOS == "windows" {
+		binaryName += ".exe"
+	}
+
+	// Find matching asset
+	var downloadURL string
+	for _, asset := range release.Assets {
+		if asset.Name == binaryName {
+			downloadURL = asset.BrowserDownloadURL
+			break
+		}
+	}
+
+	if downloadURL == "" {
+		return fmt.Errorf("no binary found for %s-%s", runtime.GOOS, runtime.GOARCH)
+	}
+
+	// Download to temporary file
+	tmpFile, err := downloadFile(downloadURL)
+	if err != nil {
+		return fmt.Errorf("download failed: %w", err)
+	}
+	defer os.Remove(tmpFile)
+
+	// Make executable
+	if err := os.Chmod(tmpFile, 0755); err != nil {
+		return fmt.Errorf("failed to make executable: %w", err)
+	}
+
+	// Replace existing plugin
+	if err := os.Remove(existingPath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to remove old plugin: %w", err)
+	}
+
+	if err := os.Rename(tmpFile, existingPath); err != nil {
+		return fmt.Errorf("failed to install plugin: %w", err)
+	}
 
 	return nil
 }
