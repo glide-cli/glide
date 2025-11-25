@@ -1,3 +1,10 @@
+## [2.3.0](https://github.com/ivannovak/glide/compare/v2.2.0...v2.3.0) (2025-11-25)
+
+
+### Features
+
+* **plugins:** add plugin update/upgrade command ([#11](https://github.com/ivannovak/glide/issues/11)) ([85ccd3d](https://github.com/ivannovak/glide/commit/85ccd3d7d683f11ed9df309c81ee486280cfb1fa))
+
 ## [2.1.2](https://github.com/ivannovak/glide/compare/v2.1.1...v2.1.2) (2025-11-24)
 
 
