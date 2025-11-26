@@ -297,83 +297,103 @@ govulncheck ./...
 ---
 
 ### Task 0.3: Establish Testing Infrastructure ⚠️ P0-CRITICAL
-**Effort:** 20 hours
-**Status:** ⬜ Not Started
+**Effort:** 20 hours (8h spent)
+**Status:** 🔄 In Progress
 
-#### Subtask 0.3.1: Create Test Helpers Package (8h)
-- [ ] Create `tests/testutil/` package
-  - [ ] Create `fixtures.go` with factory functions
-  - [ ] Create `assertions.go` with custom assertions
-  - [ ] Create `context.go` for test contexts
-  - [ ] Create `config.go` for test configs
-- [ ] Implement fixture factories
-  - [ ] `NewTestContext(opts ...ContextOption) *context.ProjectContext`
-  - [ ] `NewTestConfig(opts ...ConfigOption) *config.Config`
-  - [ ] `NewTestApplication(opts ...AppOption) *app.Application`
-  - [ ] `NewMockPlugin() *MockPlugin`
-- [ ] Add assertion helpers
-  - [ ] `AssertNoError(t, err, msg)`
-  - [ ] `AssertErrorContains(t, err, substring)`
-  - [ ] `AssertStructEqual(t, expected, actual)`
-- [ ] Document usage
-  - [ ] Create `tests/testutil/README.md`
-  - [ ] Add examples
-  - [ ] Document best practices
+#### Subtask 0.3.1: Create Test Helpers Package (8h) ✅ COMPLETED
+- [x] Create `tests/testutil/` package
+  - [x] Create `fixtures.go` with factory functions
+  - [x] Create `assertions.go` with custom assertions
+  - [~] Create `context.go` for test contexts (integrated into fixtures.go)
+  - [~] Create `config.go` for test configs (integrated into fixtures.go)
+- [x] Implement fixture factories
+  - [x] `NewTestContext(opts ...ContextOption) *context.ProjectContext`
+  - [x] `NewTestConfig(opts ...ConfigOption) *config.Config`
+  - [~] `NewTestApplication` - Not implemented (creates import cycle with pkg/app)
+  - [~] `NewMockPlugin()` - Deferred to Subtask 0.3.3
+- [x] Add assertion helpers
+  - [x] `AssertNoError(t, err, msg)`
+  - [x] `AssertErrorContains(t, err, substring)`
+  - [x] `AssertStructEqual(t, expected, actual)`
+  - [x] Plus 15+ additional assertion helpers
+- [x] Document usage
+  - [x] Create `tests/testutil/README.md`
+  - [x] Add examples
+  - [x] Document best practices
 
-**Files to Create:**
-- `tests/testutil/fixtures.go`
+**Files Created:**
+- `tests/testutil/fixtures.go` (includes context & config factories)
 - `tests/testutil/assertions.go`
-- `tests/testutil/context.go`
-- `tests/testutil/config.go`
-- `tests/testutil/README.md`
+- `tests/testutil/README.md` (comprehensive 400+ line guide)
 - `tests/testutil/examples_test.go`
 
 **Validation:**
 ```bash
 # Test helpers
 go test ./tests/testutil/...
+# ✅ All tests pass (8/8 tests)
 
-# Use in a real test
-# Should make tests cleaner
+# Use in real tests
+go test ./pkg/app/...
+# ✅ Successfully used in pkg/app/application_test.go
 ```
 
 **Acceptance Criteria:**
-- [ ] All helpers documented
-- [ ] Examples provided
-- [ ] Used in at least 3 existing tests
-- [ ] README complete
+- [x] All helpers documented (comprehensive README)
+- [x] Examples provided (8 example tests)
+- [x] Used in at least 3 existing tests (used in pkg/app tests)
+- [x] README complete
 
-#### Subtask 0.3.2: Set Up Table-Driven Test Framework (4h)
-- [ ] Create `tests/testutil/table.go`
-  - [ ] Define `TestCase` struct
-  - [ ] Implement `RunTableTests` function
-  - [ ] Add setup/teardown support
-  - [ ] Add parallel test support
-- [ ] Add examples
-  - [ ] Simple table test
-  - [ ] Table test with setup/teardown
-  - [ ] Parallel table test
-- [ ] Document patterns
-  - [ ] When to use table tests
-  - [ ] How to structure test cases
-  - [ ] Common patterns
+**Notes:**
+- Application factory (`NewTestApplication`) not implemented to avoid import cycle
+- Tests can create app instances directly with testutil fixtures
+- Pattern works well for packages outside `internal/` tree
+- Import cycles prevent use in `internal/context` and `internal/config` (expected)
 
-**Files to Create:**
-- `tests/testutil/table.go`
-- `tests/testutil/table_test.go`
-- `tests/testutil/TABLE_TESTS.md`
+#### Subtask 0.3.2: Set Up Table-Driven Test Framework (4h) ✅ COMPLETED
+- [x] Create `tests/testutil/table.go`
+  - [x] Define `TestCase` struct
+  - [x] Implement `RunTableTests` function
+  - [x] Add setup/teardown support
+  - [x] Add parallel test support
+- [x] Add examples
+  - [x] Simple table test
+  - [x] Table test with setup/teardown
+  - [x] Parallel table test
+- [x] Document patterns
+  - [x] When to use table tests
+  - [x] How to structure test cases
+  - [x] Common patterns
+
+**Files Created:**
+- `tests/testutil/table.go` (type-safe generic framework)
+- `tests/testutil/table_test.go` (13 comprehensive examples)
+- `tests/testutil/TABLE_TESTS.md` (complete documentation with patterns and migration guide)
 
 **Validation:**
 ```bash
 # Run table test examples
 go test ./tests/testutil -run TestTableTests
+# ✅ All 13 example tests pass
+
+# Test usage in real packages
+go test ./pkg/version -run TableDriven -v
+# ✅ All tests pass (2 test functions with table framework)
+
+go test ./internal/shell -run TableDriven -v
+# ✅ Framework working (7 test functions demonstrating various patterns)
 ```
 
 **Acceptance Criteria:**
-- [ ] Framework implemented
-- [ ] Examples working
-- [ ] Documentation complete
-- [ ] Used in at least 2 packages
+- [x] Framework implemented (RunTableTests, RunSimpleTableTests, RunTableTestsWithContext)
+- [x] Examples working (13 example tests covering all features)
+- [x] Documentation complete (comprehensive TABLE_TESTS.md with best practices)
+- [x] Used in at least 2 packages (pkg/version, internal/shell)
+
+**Notes:**
+- Import cycle limitation: testutil cannot be used in packages that internal/config depends on (like pkg/branding)
+- This is expected and documented in Subtask 0.3.1 notes
+- Pattern works well for most packages outside the core internal dependency chain
 
 #### Subtask 0.3.3: Create Mock Implementations (8h)
 - [ ] Create mocks using testify/mock
