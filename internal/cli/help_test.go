@@ -716,3 +716,94 @@ func TestCategoryInfo(t *testing.T) {
 		assert.Equal(t, 90, info.Priority) // Should be last
 	})
 }
+
+// TestGetPluginSubcommands tests the getPluginSubcommands helper
+func TestGetPluginSubcommands(t *testing.T) {
+	t.Run("plugin with subcommands", func(t *testing.T) {
+		hc := &HelpCommand{
+			ProjectContext: &context.ProjectContext{},
+		}
+
+		// Create a root command with a plugin that has subcommands
+		rootCmd := &cobra.Command{Use: "glide"}
+
+		pluginCmd := &cobra.Command{
+			Use:   "docker",
+			Short: "Docker management",
+		}
+
+		// Add subcommands to plugin
+		pluginCmd.AddCommand(&cobra.Command{
+			Use:     "ps",
+			Short:   "List containers",
+			Aliases: []string{"list"},
+		})
+		pluginCmd.AddCommand(&cobra.Command{
+			Use:   "up",
+			Short: "Start containers",
+		})
+
+		// Add hidden command (should not appear)
+		hiddenCmd := &cobra.Command{
+			Use:    "internal",
+			Short:  "Internal command",
+			Hidden: true,
+		}
+		pluginCmd.AddCommand(hiddenCmd)
+
+		rootCmd.AddCommand(pluginCmd)
+
+		subcommands := hc.getPluginSubcommands(rootCmd, "docker")
+
+		assert.Len(t, subcommands, 2, "should return 2 non-hidden subcommands")
+
+		// Commands should be sorted alphabetically
+		assert.Equal(t, "ps", subcommands[0].Name)
+		assert.Equal(t, "List containers", subcommands[0].Description)
+		assert.Equal(t, []string{"list"}, subcommands[0].Aliases)
+
+		assert.Equal(t, "up", subcommands[1].Name)
+	})
+
+	t.Run("plugin not found", func(t *testing.T) {
+		hc := &HelpCommand{
+			ProjectContext: &context.ProjectContext{},
+		}
+
+		rootCmd := &cobra.Command{Use: "glide"}
+
+		subcommands := hc.getPluginSubcommands(rootCmd, "nonexistent")
+
+		assert.Empty(t, subcommands, "should return empty slice for non-existent plugin")
+	})
+
+	t.Run("plugin with no subcommands", func(t *testing.T) {
+		hc := &HelpCommand{
+			ProjectContext: &context.ProjectContext{},
+		}
+
+		rootCmd := &cobra.Command{Use: "glide"}
+		pluginCmd := &cobra.Command{
+			Use:   "simple",
+			Short: "Simple command",
+		}
+		rootCmd.AddCommand(pluginCmd)
+
+		subcommands := hc.getPluginSubcommands(rootCmd, "simple")
+
+		assert.Empty(t, subcommands, "should return empty slice for plugin with no subcommands")
+	})
+}
+
+// TestAreCompletionsInstalled tests the completion check helper
+func TestAreCompletionsInstalled(t *testing.T) {
+	t.Run("checks completion files", func(t *testing.T) {
+		hc := &HelpCommand{
+			ProjectContext: &context.ProjectContext{},
+		}
+
+		// Just verify it doesn't panic and returns a boolean
+		result := hc.areCompletionsInstalled()
+		assert.IsType(t, false, result, "should return a boolean")
+	})
+}
