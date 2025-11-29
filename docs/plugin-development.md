@@ -2,11 +2,12 @@
 
 ## Table of Contents
 - [Overview](#overview)
-- [Plugin Architecture](#plugin-architecture)
+- [SDK v2 - Recommended](#sdk-v2---recommended)
+- [Plugin Architecture (v1)](#plugin-architecture-v1)
   - [Plugin Interface](#plugin-interface)
   - [Plugin Metadata](#plugin-metadata)
   - [Plugin Dependencies](#plugin-dependencies)
-- [Creating a Plugin](#creating-a-plugin)
+- [Creating a Plugin (v1)](#creating-a-plugin-v1)
 - [Command Registration](#command-registration)
 - [Using Command Aliases](#using-command-aliases)
 - [Best Practices](#best-practices)
@@ -16,7 +17,88 @@
 
 Glide supports a powerful plugin system that allows developers to extend the CLI with custom commands. Plugins can be built into the binary at compile time or loaded dynamically at runtime.
 
-## Plugin Architecture
+**Note**: This guide primarily covers the v1 plugin SDK. For new plugins, we recommend using the **[SDK v2](#sdk-v2---recommended)** which provides better type safety, simplified lifecycle management, and improved developer experience.
+
+## SDK v2 - Recommended
+
+**For new plugin development, we strongly recommend using SDK v2**. It provides:
+
+- **Type-safe configuration** using Go generics
+- **Unified lifecycle management** (Init/Start/Stop/HealthCheck)
+- **Declarative command definition**
+- **Simplified development** with `BasePlugin[C]`
+- **Full backward compatibility** with v1 plugins
+
+### Quick Start with SDK v2
+
+```go
+package myplugin
+
+import (
+    "context"
+    "github.com/ivannovak/glide/v2/pkg/plugin/sdk/v2"
+)
+
+// Define your type-safe configuration
+type MyConfig struct {
+    APIKey  string `json:"apiKey" validate:"required"`
+    Timeout int    `json:"timeout" validate:"min=1"`
+}
+
+// Create your plugin by embedding BasePlugin
+type MyPlugin struct {
+    v2.BasePlugin[MyConfig]
+    // Your plugin state here
+}
+
+// Implement required methods
+func (p *MyPlugin) Metadata() v2.Metadata {
+    return v2.Metadata{
+        Name:        "my-plugin",
+        Version:     "1.0.0",
+        Description: "My awesome plugin",
+        Author:      "Your Name",
+    }
+}
+
+// Configure is called with type-safe config
+func (p *MyPlugin) Configure(ctx context.Context, config MyConfig) error {
+    // Store config using BasePlugin
+    p.BasePlugin.Configure(ctx, config)
+
+    // Your initialization logic
+    return nil
+}
+
+// Optional lifecycle hooks
+func (p *MyPlugin) Init(ctx context.Context) error {
+    // One-time initialization
+    return nil
+}
+
+func (p *MyPlugin) Start(ctx context.Context) error {
+    // Start operation (connect to services, etc.)
+    return nil
+}
+
+func (p *MyPlugin) Stop(ctx context.Context) error {
+    // Graceful shutdown
+    return nil
+}
+```
+
+### SDK v2 Documentation
+
+For complete SDK v2 documentation and migration guide, see:
+
+- **[SDK v2 Migration Guide](./guides/PLUGIN-SDK-V2-MIGRATION.md)** - Comprehensive guide for migrating from v1 to v2
+- **[SDK v2 API Reference](../pkg/plugin/sdk/v2/plugin.go)** - Full API documentation
+
+The rest of this guide covers the v1 SDK for reference and backward compatibility.
+
+---
+
+## Plugin Architecture (v1)
 
 ### Plugin Interface
 
@@ -158,7 +240,7 @@ Load order: `plugin-a` → `plugin-b` → `plugin-c`
 4. **Document your dependencies** in your plugin's README
 5. **Test with different dependency versions** to ensure compatibility
 
-## Creating a Plugin
+## Creating a Plugin (v1)
 
 ### Basic Plugin Structure
 

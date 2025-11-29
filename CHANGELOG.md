@@ -1,3 +1,52 @@
+## [Unreleased]
+
+### Features
+
+* **plugin-system:** type-safe configuration system with Go generics ([#TBD](https://github.com/ivannovak/glide/issues/TBD))
+  - Implement `TypedConfig[T]` for compile-time type safety
+  - Add JSON Schema generation from Go types
+  - Implement validation via struct tags (required, min, max, pattern, enum)
+  - Add configuration migration system with version detection
+  - Add backward compatibility layer for legacy map-based configs
+  - Coverage: 85.4% (exceeds 80% target)
+
+* **plugin-system:** plugin lifecycle management ([#TBD](https://github.com/ivannovak/glide/issues/TBD))
+  - Add `Lifecycle` interface (Init/Start/Stop/HealthCheck)
+  - Implement `LifecycleManager` with state tracking
+  - Add configurable timeouts and health check monitoring
+  - Support ordered initialization based on dependencies
+  - Add graceful shutdown with cleanup verification
+
+* **plugin-system:** dependency resolution system ([#TBD](https://github.com/ivannovak/glide/issues/TBD))
+  - Implement topological sort using Kahn's algorithm
+  - Add cycle detection with detailed error reporting
+  - Support semantic version constraints (^, ~, >=, etc.)
+  - Handle optional dependencies with warnings
+  - Validate version compatibility at load time
+
+* **plugin-system:** SDK v2 development ([#TBD](https://github.com/ivannovak/glide/issues/TBD))
+  - Create `Plugin[C any]` generic interface for type-safe plugins
+  - Add `BasePlugin[C]` with sensible defaults
+  - Implement declarative command system
+  - Add `Metadata` structure with capabilities declaration
+  - Create adapter layer for v1/v2 compatibility
+  - Add comprehensive migration guide (568 lines)
+
+### Documentation
+
+* **guides:** add SDK v2 migration guide with complete examples
+* **guides:** update plugin development guide with SDK v2 quickstart
+* **docs:** add Phase 3 integration tests validating all features
+
+### Tests
+
+* **integration:** add end-to-end plugin lifecycle tests
+* **integration:** add dependency resolution tests (linear, diamond, cycles)
+* **integration:** add v1/v2 plugin coexistence tests
+* **integration:** add configuration migration tests
+
+---
+
 ## [2.3.0](https://github.com/ivannovak/glide/compare/v2.2.0...v2.3.0) (2025-11-25)
 
 
