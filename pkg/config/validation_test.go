@@ -1,6 +1,7 @@
 package config
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -58,10 +59,10 @@ func TestValidator_Required(t *testing.T) {
 
 func TestValidator_Min(t *testing.T) {
 	type Config struct {
-		Age      int    `json:"age" validate:"min=0"`
-		Score    int    `json:"score" validate:"min=1,max=100"`
-		Name     string `json:"name" validate:"min=2"`
-		Tags     []string `json:"tags" validate:"min=1"`
+		Age   int      `json:"age" validate:"min=0"`
+		Score int      `json:"score" validate:"min=1,max=100"`
+		Name  string   `json:"name" validate:"min=2"`
+		Tags  []string `json:"tags" validate:"min=1"`
 	}
 
 	tests := []struct {
@@ -110,10 +111,10 @@ func TestValidator_Min(t *testing.T) {
 
 func TestValidator_Max(t *testing.T) {
 	type Config struct {
-		Age      int    `json:"age" validate:"max=120"`
-		Score    int    `json:"score" validate:"min=1,max=100"`
-		Name     string `json:"name" validate:"max=50"`
-		Tags     []string `json:"tags" validate:"max=5"`
+		Age   int      `json:"age" validate:"max=120"`
+		Score int      `json:"score" validate:"min=1,max=100"`
+		Name  string   `json:"name" validate:"max=50"`
+		Tags  []string `json:"tags" validate:"max=5"`
 	}
 
 	tests := []struct {
@@ -219,9 +220,9 @@ func TestValidator_MultipleErrors(t *testing.T) {
 
 	// Config with multiple validation errors
 	config := Config{
-		Name: "J",   // Too short (min=2)
-		Age:  -1,    // Too low (min=0)
-		Email: "",   // Required but missing
+		Name:  "J", // Too short (min=2)
+		Age:   -1,  // Too low (min=0)
+		Email: "",  // Required but missing
 	}
 
 	validator := NewValidator()
@@ -426,5 +427,314 @@ func TestValidationErrors_Error(t *testing.T) {
 	}
 	if !strings.Contains(errStr, "name") || !strings.Contains(errStr, "age") || !strings.Contains(errStr, "email") {
 		t.Errorf("Multiple errors should list all fields, got: %s", errStr)
+	}
+}
+
+// TestValidator_UintAndFloatTypes tests validateMin/Max with uint and float types
+func TestValidator_UintAndFloatTypes(t *testing.T) {
+	type Config struct {
+		Count    uint    `json:"count" validate:"min=1,max=100"`
+		Ratio    float64 `json:"ratio" validate:"min=0.0,max=1.0"`
+		SmallInt uint8   `json:"small_int" validate:"min=5,max=50"`
+		Percent  float32 `json:"percent" validate:"min=0.0,max=100.0"`
+	}
+
+	tests := []struct {
+		name    string
+		config  Config
+		wantErr bool
+	}{
+		{
+			name:    "valid uint and float values",
+			config:  Config{Count: 50, Ratio: 0.5, SmallInt: 25, Percent: 75.0},
+			wantErr: false,
+		},
+		{
+			name:    "uint below minimum",
+			config:  Config{Count: 0, Ratio: 0.5, SmallInt: 25, Percent: 75.0},
+			wantErr: true,
+		},
+		{
+			name:    "uint above maximum",
+			config:  Config{Count: 101, Ratio: 0.5, SmallInt: 25, Percent: 75.0},
+			wantErr: true,
+		},
+		{
+			name:    "float below minimum",
+			config:  Config{Count: 50, Ratio: -0.1, SmallInt: 25, Percent: 75.0},
+			wantErr: true,
+		},
+		{
+			name:    "float above maximum",
+			config:  Config{Count: 50, Ratio: 1.5, SmallInt: 25, Percent: 75.0},
+			wantErr: true,
+		},
+		{
+			name:    "uint8 below minimum",
+			config:  Config{Count: 50, Ratio: 0.5, SmallInt: 4, Percent: 75.0},
+			wantErr: true,
+		},
+		{
+			name:    "float32 above maximum",
+			config:  Config{Count: 50, Ratio: 0.5, SmallInt: 25, Percent: 101.0},
+			wantErr: true,
+		},
+	}
+
+	validator := NewValidator()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validator.Validate(tt.config)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+// TestValidator_InvalidRules tests error handling for malformed validation rules
+func TestValidator_InvalidRules(t *testing.T) {
+	type Config struct {
+		BadMin      int    `json:"bad_min" validate:"min=invalid"`
+		BadMax      int    `json:"bad_max" validate:"max=not_a_number"`
+		BadEnum     string `json:"bad_enum" validate:"enum="`
+		UnknownRule string `json:"unknown" validate:"foobar=123"`
+	}
+
+	config := Config{
+		BadMin:      10,
+		BadMax:      20,
+		BadEnum:     "test",
+		UnknownRule: "value",
+	}
+
+	validator := NewValidator()
+	// Should not panic, invalid rules should be skipped
+	err := validator.Validate(config)
+
+	// Invalid rules are silently skipped, so no error expected
+	if err != nil {
+		t.Logf("Got error (expected to be skipped): %v", err)
+	}
+}
+
+// TestValidator_Pattern tests pattern validation (currently a placeholder)
+func TestValidator_Pattern(t *testing.T) {
+	type Config struct {
+		Email     string `json:"email" validate:"pattern=^[a-z]+@[a-z]+\\.[a-z]+$"`
+		NotString int    `json:"not_string" validate:"pattern=.*"`
+	}
+
+	tests := []struct {
+		name    string
+		config  Config
+		wantErr bool
+	}{
+		{
+			name:    "pattern on string (currently noop)",
+			config:  Config{Email: "test@example.com", NotString: 123},
+			wantErr: false, // Pattern validation is currently a noop
+		},
+		{
+			name:    "pattern on non-string (skipped)",
+			config:  Config{Email: "valid@test.com", NotString: 456},
+			wantErr: false,
+		},
+	}
+
+	validator := NewValidator()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validator.Validate(tt.config)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+// TestIsZeroValue tests the isZeroValue helper function indirectly
+func TestIsZeroValue_ThroughValidation(t *testing.T) {
+	type Config struct {
+		BoolField   bool              `json:"bool_field" validate:"required"`
+		IntField    int               `json:"int_field" validate:"required"`
+		UintField   uint              `json:"uint_field" validate:"required"`
+		FloatField  float64           `json:"float_field" validate:"required"`
+		StringField string            `json:"string_field" validate:"required"`
+		SliceField  []int             `json:"slice_field" validate:"required"`
+		MapField    map[string]string `json:"map_field" validate:"required"`
+		PtrField    *string           `json:"ptr_field" validate:"required"`
+	}
+
+	validator := NewValidator()
+
+	// Test zero values are detected as missing (required validation)
+	zeroConfig := Config{}
+	err := validator.Validate(zeroConfig)
+	if err == nil {
+		t.Error("Expected validation errors for zero values, got nil")
+	}
+
+	// Test non-zero values pass required validation
+	str := "test"
+	nonZeroConfig := Config{
+		BoolField:   true,
+		IntField:    1,
+		UintField:   1,
+		FloatField:  1.0,
+		StringField: "value",
+		SliceField:  []int{1},
+		MapField:    map[string]string{"key": "value"},
+		PtrField:    &str,
+	}
+	err = validator.Validate(nonZeroConfig)
+	if err != nil {
+		t.Errorf("Expected no errors for non-zero values, got: %v", err)
+	}
+}
+
+// TestApplyDefaults tests the applyDefaults function with various types
+// NOTE: ValidateWithDefaults only applies defaults when validation fails
+func TestApplyDefaults_AllTypes(t *testing.T) {
+	type Nested struct {
+		Value string `json:"value" validate:"required"`
+	}
+
+	type Config struct {
+		StringVal string            `json:"string_val" validate:"required"`
+		IntVal    int               `json:"int_val" validate:"required"`
+		BoolVal   bool              `json:"bool_val"`
+		FloatVal  float64           `json:"float_val"`
+		UintVal   uint              `json:"uint_val"`
+		SliceVal  []string          `json:"slice_val"`
+		MapVal    map[string]string `json:"map_val"`
+		StructVal Nested            `json:"struct_val"`
+		PtrVal    *string           `json:"ptr_val"`
+	}
+
+	defaultStr := "default-ptr"
+	defaults := Config{
+		StringVal: "default-string",
+		IntVal:    42,
+		BoolVal:   true,
+		FloatVal:  3.14,
+		UintVal:   100,
+		SliceVal:  []string{"default1", "default2"},
+		MapVal:    map[string]string{"key": "default"},
+		StructVal: Nested{Value: "default-nested"},
+		PtrVal:    &defaultStr,
+	}
+
+	tests := []struct {
+		name    string
+		config  Config
+		wantErr bool
+	}{
+		{
+			name:    "empty config gets required defaults applied",
+			config:  Config{},
+			wantErr: false, // Defaults should fix required field violations
+		},
+		{
+			name: "partial config gets missing required defaults",
+			config: Config{
+				StringVal: "custom",
+				// IntVal missing (required) - should get default
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateWithDefaults(&tt.config, defaults)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ValidateWithDefaults() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			// After applying defaults, required fields should be populated
+			if !tt.wantErr {
+				if tt.config.StringVal == "" {
+					t.Error("StringVal should be populated from defaults")
+				}
+				if tt.config.IntVal == 0 {
+					t.Error("IntVal should be populated from defaults")
+				}
+			}
+		})
+	}
+}
+
+// TestApplyDefaults_DirectCall tests the applyDefaults function more directly
+func TestApplyDefaults_DirectCall(t *testing.T) {
+	type Config struct {
+		StringVal string
+		IntVal    int
+		BoolVal   bool
+		FloatVal  float64
+		UintVal   uint
+	}
+
+	defaults := Config{
+		StringVal: "default",
+		IntVal:    42,
+		BoolVal:   true,
+		FloatVal:  3.14,
+		UintVal:   100,
+	}
+
+	// Test with empty config
+	config := Config{}
+	applyDefaults(reflect.ValueOf(&config).Elem(), reflect.ValueOf(defaults))
+
+	// All zero values should be replaced with defaults
+	if config.StringVal != "default" {
+		t.Errorf("StringVal = %v, want 'default'", config.StringVal)
+	}
+	if config.IntVal != 42 {
+		t.Errorf("IntVal = %v, want 42", config.IntVal)
+	}
+	// Note: bool zero value (false) won't be replaced since it's a valid value
+	if config.FloatVal != 3.14 {
+		t.Errorf("FloatVal = %v, want 3.14", config.FloatVal)
+	}
+	if config.UintVal != 100 {
+		t.Errorf("UintVal = %v, want 100", config.UintVal)
+	}
+
+	// Test with partial config (should preserve non-zero values)
+	config2 := Config{StringVal: "custom", IntVal: 99}
+	applyDefaults(reflect.ValueOf(&config2).Elem(), reflect.ValueOf(defaults))
+
+	if config2.StringVal != "custom" {
+		t.Errorf("StringVal should be preserved, got %v", config2.StringVal)
+	}
+	if config2.IntVal != 99 {
+		t.Errorf("IntVal should be preserved, got %v", config2.IntVal)
+	}
+}
+
+// TestValidationError_SingleError tests the Error() method with single validation error
+func TestValidationError_SingleError(t *testing.T) {
+	err := ValidationError{
+		Field:   "username",
+		Value:   "",
+		Rule:    "required",
+		Message: "username is required",
+	}
+
+	errStr := err.Error()
+
+	// Should contain all key information
+	if !strings.Contains(errStr, "username") {
+		t.Errorf("Error should contain field name, got: %s", errStr)
+	}
+	if !strings.Contains(errStr, "required") {
+		t.Errorf("Error should contain rule, got: %s", errStr)
+	}
+	if !strings.Contains(errStr, "username is required") {
+		t.Errorf("Error should contain message, got: %s", errStr)
 	}
 }

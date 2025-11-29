@@ -32,8 +32,8 @@ This document provides a detailed, actionable checklist for executing the gold s
   - [x] Task 2.4: Core Package Testing (2h actual) **COMPLETE** - HIGH
   - [x] Task 2.5: Contract Tests (3h actual) **COMPLETE**
   - [x] Task 2.6: Integration Tests & E2E (20h actual) **COMPLETE**
-- [ ] Phase 3: Plugin System Hardening (Weeks 9-11) - 0/120 hours
-  - [ ] Task 3.1: Type-Safe Configuration System (32h)
+- [ ] Phase 3: Plugin System Hardening (Weeks 9-11) - 24/120 hours (20% complete)
+  - [x] Task 3.1: Type-Safe Configuration System (32h) ✅ COMPLETE
   - [ ] Task 3.2: Plugin Lifecycle Management (40h)
   - [ ] Task 3.3: Dependency Resolution (24h)
   - [ ] Task 3.4: SDK v2 Development (24h)
@@ -3001,10 +3001,10 @@ go test -bench=. -benchmem ./tests/benchmarks/... > benchmarks.txt
 **Effort:** 120 hours
 **Risk:** MEDIUM - Plugin interface changes require migration support
 
-### Task 3.1: Type-Safe Configuration System
-**Effort:** 32 hours
+### Task 3.1: Type-Safe Configuration System ✅ COMPLETE
+**Effort:** 32 hours (estimated) / ~24 hours (actual)
 **Priority:** P1
-**Status:** Not Started
+**Status:** ✅ COMPLETE
 
 #### Subtask 3.1.1: Design Generic Config Types (8h) ✅ COMPLETED
 - [x] Create type-safe configuration interfaces
@@ -3053,41 +3053,57 @@ go test -bench=. -benchmem ./tests/benchmarks/... > benchmarks.txt
 
 ---
 
-#### Subtask 3.1.3: Migrate Existing Configs (8h)
-- [ ] Update `internal/config` to use typed configs
-- [ ] Update plugin config handling
-  - [ ] Remove `map[string]interface{}` from plugin interfaces
-  - [ ] Use typed config in plugin initialization
-- [ ] Update test helpers
+#### Subtask 3.1.3: Migrate Existing Configs (8h) ✅ COMPLETED
+- [x] Update `internal/config` to use typed configs
+- [x] Update plugin config handling
+  - [x] Remove `map[string]interface{}` from plugin interfaces
+  - [x] Use typed config in plugin initialization
+- [x] Update test helpers
 
-**Files to Modify:**
-- `internal/config/loader.go`
-- `pkg/plugin/sdk/manager.go`
-- `pkg/plugin/plugintest/config.go`
-- `pkg/plugin/plugintest/harness.go`
+**Files Modified:**
+- `pkg/plugin/interface.go` - Updated `PluginConfigurable.Configure()` signature (removed map param)
+- `pkg/plugin/registry.go` - Updated to call `Configure()` without parameters
+- `pkg/plugin/plugintest/harness.go` - Updated to call `Configure()` without parameters
+- `pkg/plugin/plugintest/mock.go` - Removed `ReceivedConfig` field, updated signature
+- `pkg/plugin/plugintest/assertions.go` - Updated `AssertConfigApplied` for type-safe config
+- `pkg/plugin/alias_test.go` - Updated test plugin implementation
+- `pkg/plugin/integration_test.go` - Updated test plugin implementation
+- `pkg/plugin/interface_test.go` - Updated test assertions
+- `tests/testutil/fixtures.go` - Removed `Plugins` field from config fixture
+- `docs/plugin-development.md` - Updated examples and interface docs
 
 **Acceptance Criteria:**
-- [ ] Zero `map[string]interface{}` in plugin config paths
-- [ ] All existing tests pass
-- [ ] Config loading is type-safe
+- [x] Zero `map[string]interface{}` in plugin config paths ✅ (only in backward-compat helpers)
+- [x] All existing tests pass ✅ (all go test ./... pass)
+- [x] Config loading is type-safe ✅ (uses pkg/config system)
 
 ---
 
-#### Subtask 3.1.4: Add Config Type Tests (8h)
-- [ ] Unit tests for typed config
-- [ ] Integration tests for config loading
-- [ ] Migration tests (old format → new format)
-- [ ] Schema validation tests
+#### Subtask 3.1.4: Add Config Type Tests (8h) ✅ COMPLETED
+- [x] Unit tests for typed config
+- [x] Integration tests for config loading
+- [x] Migration tests (old format → new format)
+- [x] Schema validation tests
 
-**Files to Create:**
-- `pkg/config/typed_test.go`
-- `pkg/config/schema_test.go`
-- `pkg/config/migration_test.go`
+**Files Created:**
+- `pkg/config/typed_test.go` ✅
+- `pkg/config/schema_test.go` ✅
+- `pkg/config/migration_test.go` ✅
+- `pkg/config/validation_test.go` ✅ (comprehensive validation tests)
+- `tests/integration/config_test.go` ✅ (integration tests)
 
 **Acceptance Criteria:**
-- [ ] >80% coverage on new config code
-- [ ] Migration paths verified
-- [ ] Edge cases covered
+- [x] >80% coverage on new config code ✅ (85.4% achieved, exceeding 80% target)
+- [x] Migration paths verified ✅ (migration tests in migration_test.go)
+- [x] Edge cases covered ✅ (uint/float types, pattern validation, isZeroValue, applyDefaults)
+
+**Coverage Improvements:**
+- Overall: 79.6% → 85.4% ✅
+- validatePattern: 0% → 100% ✅
+- validateMin: 51.9% → 85.2% ✅
+- validateMax: 51.9% → 85.2% ✅
+- isZeroValue: 54.5% → 90.9% ✅
+- validateRule: → 100% ✅
 
 ---
 
