@@ -3030,25 +3030,26 @@ go test -bench=. -benchmem ./tests/benchmarks/... > benchmarks.txt
 
 ---
 
-#### Subtask 3.1.2: Implement Config Validation (8h)
-- [ ] Add JSON Schema validation
-  - [ ] Validate config against schema on load
-  - [ ] Provide clear error messages for invalid configs
-  - [ ] Support default values
-- [ ] Add config migration support
-  - [ ] Version detection
-  - [ ] Auto-migration hooks
-  - [ ] Backward compatibility layer
+#### Subtask 3.1.2: Implement Config Validation (8h) ✅ COMPLETED
+- [x] Add JSON Schema validation
+  - [x] Validate config against schema on load (via Validator with struct tags)
+  - [x] Provide clear error messages for invalid configs (ValidationError with field/value/rule/message)
+  - [x] Support default values (ValidateWithDefaults() function)
+- [x] Add config migration support
+  - [x] Version detection (DetectVersion() function)
+  - [x] Auto-migration hooks (Migrator with AddMigration())
+  - [x] Backward compatibility layer (BackwardCompatibilityLayer with legacy key mapping)
 
-**Files to Create:**
-- `pkg/config/validation.go`
-- `pkg/config/migration.go`
-- `pkg/config/validation_test.go`
+**Files Created:**
+- `pkg/config/validation.go` ✅ (comprehensive validation with struct tags)
+- `pkg/config/migration.go` ✅ (versioned migrations and backward compatibility)
+- `pkg/config/validation_test.go` ✅ (extensive test coverage)
+- `pkg/config/migration_test.go` ✅ (migration and compatibility tests)
 
 **Acceptance Criteria:**
-- [ ] Invalid configs rejected with clear errors
-- [ ] Default values applied correctly
-- [ ] Old config formats still work (backward compat)
+- [x] Invalid configs rejected with clear errors ✅ (ValidationError provides detailed context)
+- [x] Default values applied correctly ✅ (ValidateWithDefaults() and applyDefaults() tested)
+- [x] Old config formats still work (backward compat) ✅ (BackwardCompatibilityLayer + Migrator tested)
 
 ---
 
