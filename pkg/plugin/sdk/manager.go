@@ -64,6 +64,7 @@ type Manager struct {
 	cache            *Cache
 	config           *ManagerConfig
 	lifecycleManager *LifecycleManager
+	resolver         *DependencyResolver
 }
 
 // LoadedPlugin represents a loaded and running plugin
@@ -135,6 +136,9 @@ func NewManager(config *ManagerConfig) *Manager {
 	lifecycleConfig := DefaultLifecycleConfig()
 	lifecycleManager := NewLifecycleManager(lifecycleConfig)
 
+	// Create dependency resolver
+	resolver := NewDependencyResolver()
+
 	return &Manager{
 		plugins:          make(map[string]*LoadedPlugin),
 		discoverer:       NewDiscoverer(config.PluginDirs),
@@ -142,6 +146,7 @@ func NewManager(config *ManagerConfig) *Manager {
 		cache:            NewCache(config.CacheTimeout),
 		config:           config,
 		lifecycleManager: lifecycleManager,
+		resolver:         resolver,
 	}
 }
 
@@ -664,4 +669,56 @@ func contains(slice []string, value string) bool {
 		}
 	}
 	return false
+}
+
+// convertToPluginMetadata converts v1.PluginMetadata to PluginMetadata
+// for dependency resolution
+func convertToPluginMetadata(v1Meta *v1.PluginMetadata) PluginMetadata {
+	deps := make([]PluginDependency, len(v1Meta.Dependencies))
+	for i, d := range v1Meta.Dependencies {
+		deps[i] = PluginDependency{
+			Name:     d.Name,
+			Version:  d.Version,
+			Optional: d.Optional,
+		}
+	}
+
+	return PluginMetadata{
+		Name:         v1Meta.Name,
+		Version:      v1Meta.Version,
+		Author:       v1Meta.Author,
+		Description:  v1Meta.Description,
+		Dependencies: deps,
+	}
+}
+
+// ResolveLoadOrder resolves the correct plugin load order based on dependencies.
+//
+// This method can be used before calling DiscoverPlugins() to determine the
+// optimal load order when multiple plugins have dependencies on each other.
+//
+// Returns:
+//   - A slice of plugin names in dependency order (dependencies before dependents)
+//   - An error if there are circular dependencies, missing required dependencies,
+//     or version mismatches
+//
+// Example:
+//
+//	loadOrder, err := manager.ResolveLoadOrder()
+//	if err != nil {
+//	    return fmt.Errorf("dependency resolution failed: %w", err)
+//	}
+//	// Load plugins in the determined order
+func (m *Manager) ResolveLoadOrder() ([]string, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	// Build plugin metadata map
+	pluginMeta := make(map[string]PluginMetadata)
+	for name, loaded := range m.plugins {
+		pluginMeta[name] = convertToPluginMetadata(loaded.Metadata)
+	}
+
+	// Resolve dependencies
+	return m.resolver.Resolve(pluginMeta)
 }

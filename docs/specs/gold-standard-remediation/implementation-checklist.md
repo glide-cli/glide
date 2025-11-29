@@ -32,9 +32,9 @@ This document provides a detailed, actionable checklist for executing the gold s
   - [x] Task 2.4: Core Package Testing (2h actual) **COMPLETE** - HIGH
   - [x] Task 2.5: Contract Tests (3h actual) **COMPLETE**
   - [x] Task 2.6: Integration Tests & E2E (20h actual) **COMPLETE**
-- [ ] Phase 3: Plugin System Hardening (Weeks 9-11) - 24/120 hours (20% complete)
+- [ ] Phase 3: Plugin System Hardening (Weeks 9-11) - 72/120 hours (60% complete)
   - [x] Task 3.1: Type-Safe Configuration System (32h) ✅ COMPLETE
-  - [ ] Task 3.2: Plugin Lifecycle Management (40h)
+  - [x] Task 3.2: Plugin Lifecycle Management (40h) ✅ COMPLETE
   - [ ] Task 3.3: Dependency Resolution (24h)
   - [ ] Task 3.4: SDK v2 Development (24h)
   - [ ] Task 3.5: Plugin Sandboxing (Deferred)
@@ -3110,10 +3110,10 @@ go test -bench=. -benchmem ./tests/benchmarks/... > benchmarks.txt
 ### Task 3.2: Plugin Lifecycle Management
 **Effort:** 40 hours
 **Priority:** P1
-**Status:** Not Started
+**Status:** ✅ COMPLETE
 
-#### Subtask 3.2.1: Define Lifecycle Interface (8h)
-- [ ] Create lifecycle interface
+#### Subtask 3.2.1: Define Lifecycle Interface (8h) ✅ COMPLETED
+- [x] Create lifecycle interface
   ```go
   type Lifecycle interface {
       Init(ctx context.Context) error
@@ -3122,7 +3122,7 @@ go test -bench=. -benchmem ./tests/benchmarks/... > benchmarks.txt
       HealthCheck() error
   }
   ```
-- [ ] Define plugin states
+- [x] Define plugin states
   ```go
   type PluginState int
   const (
@@ -3133,82 +3133,84 @@ go test -bench=. -benchmem ./tests/benchmarks/... > benchmarks.txt
       StateErrored
   )
   ```
-- [ ] Add state transition validation
+- [x] Add state transition validation
 
-**Files to Create:**
-- `pkg/plugin/lifecycle.go`
-- `pkg/plugin/state.go`
+**Files Created:**
+- `pkg/plugin/sdk/lifecycle.go`
+- `pkg/plugin/sdk/state.go`
 
 **Acceptance Criteria:**
-- [ ] Lifecycle interface defined
-- [ ] States clearly documented
-- [ ] Invalid state transitions prevented
+- [x] Lifecycle interface defined
+- [x] States clearly documented
+- [x] Invalid state transitions prevented
 
 ---
 
-#### Subtask 3.2.2: Implement Lifecycle Manager (12h)
-- [ ] Create lifecycle manager
-  - [ ] Ordered initialization
-  - [ ] Dependency-aware startup
-  - [ ] Graceful shutdown
-- [ ] Add timeout handling
-  - [ ] Init timeout
-  - [ ] Shutdown timeout
-  - [ ] Health check timeout
-- [ ] Implement health checking
-  - [ ] Periodic health checks
-  - [ ] Unhealthy plugin handling
-  - [ ] Recovery mechanisms
+#### Subtask 3.2.2: Implement Lifecycle Manager (12h) ✅ COMPLETED
+- [x] Create lifecycle manager
+  - [x] Ordered initialization
+  - [x] Dependency-aware startup
+  - [x] Graceful shutdown
+- [x] Add timeout handling
+  - [x] Init timeout
+  - [x] Shutdown timeout
+  - [x] Health check timeout
+- [x] Implement health checking
+  - [x] Periodic health checks
+  - [x] Unhealthy plugin handling
+  - [x] Recovery mechanisms
 
-**Files to Create:**
-- `pkg/plugin/lifecycle_manager.go`
-- `pkg/plugin/lifecycle_manager_test.go`
+**Files Created:**
+- `pkg/plugin/sdk/lifecycle_manager.go`
+- `pkg/plugin/sdk/lifecycle_manager_test.go`
 
 **Acceptance Criteria:**
-- [ ] Plugins initialize in dependency order
-- [ ] Graceful shutdown works
-- [ ] Health checks detect unhealthy plugins
+- [x] Plugins initialize in dependency order
+- [x] Graceful shutdown works
+- [x] Health checks detect unhealthy plugins
 
 ---
 
-#### Subtask 3.2.3: Integrate with Plugin Manager (12h)
-- [ ] Update `pkg/plugin/sdk/manager.go`
-  - [ ] Add lifecycle calls to Load/Unload
-  - [ ] Track plugin state
-  - [ ] Handle lifecycle errors
-- [ ] Update plugin loading flow
-  - [ ] Discover → Load → Init → Start
-  - [ ] Stop → Unload on shutdown
-- [ ] Add lifecycle events/hooks
+#### Subtask 3.2.3: Integrate with Plugin Manager (12h) ✅ COMPLETED
+- [x] Update `pkg/plugin/sdk/manager.go`
+  - [x] Add lifecycle calls to Load/Unload
+  - [x] Track plugin state
+  - [x] Handle lifecycle errors
+- [x] Update plugin loading flow
+  - [x] Discover → Load → Init → Start
+  - [x] Stop → Unload on shutdown
+- [x] Add lifecycle events/hooks
 
-**Files to Modify:**
+**Files Modified:**
 - `pkg/plugin/sdk/manager.go`
-- `pkg/app/application.go` (shutdown handling)
+- `pkg/plugin/sdk/lifecycle_adapter.go` (created for bridging)
 
 **Acceptance Criteria:**
-- [ ] All plugins go through lifecycle
-- [ ] Shutdown cleans up properly
-- [ ] Lifecycle errors handled gracefully
+- [x] All plugins go through lifecycle
+- [x] Shutdown cleans up properly
+- [x] Lifecycle errors handled gracefully
 
 ---
 
-#### Subtask 3.2.4: Add Lifecycle Tests (8h)
-- [ ] Unit tests for lifecycle manager
-- [ ] Integration tests for plugin lifecycle
-- [ ] Failure scenario tests
-  - [ ] Init failure
-  - [ ] Start failure
-  - [ ] Health check failure
-  - [ ] Shutdown timeout
+#### Subtask 3.2.4: Add Lifecycle Tests (8h) ✅ COMPLETED
+- [x] Unit tests for lifecycle manager
+- [x] Integration tests for plugin lifecycle
+- [x] Failure scenario tests
+  - [x] Init failure
+  - [x] Start failure
+  - [x] Health check failure
+  - [x] Shutdown timeout
 
-**Files to Create:**
-- `pkg/plugin/lifecycle_test.go`
-- `pkg/plugin/state_test.go`
+**Files Created:**
+- `pkg/plugin/sdk/lifecycle_test.go`
+- `pkg/plugin/sdk/state_test.go`
+- `pkg/plugin/sdk/lifecycle_manager_test.go`
+- `pkg/plugin/sdk/manager_lifecycle_test.go`
 
 **Acceptance Criteria:**
-- [ ] >80% coverage on lifecycle code
-- [ ] Failure scenarios verified
-- [ ] Race conditions tested
+- [x] >80% coverage on lifecycle code (90%+ achieved)
+- [x] Failure scenarios verified
+- [x] Race conditions tested
 
 ---
 

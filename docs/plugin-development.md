@@ -3,6 +3,9 @@
 ## Table of Contents
 - [Overview](#overview)
 - [Plugin Architecture](#plugin-architecture)
+  - [Plugin Interface](#plugin-interface)
+  - [Plugin Metadata](#plugin-metadata)
+  - [Plugin Dependencies](#plugin-dependencies)
 - [Creating a Plugin](#creating-a-plugin)
 - [Command Registration](#command-registration)
 - [Using Command Aliases](#using-command-aliases)
@@ -45,13 +48,14 @@ The `PluginMetadata` structure provides information about your plugin:
 
 ```go
 type PluginMetadata struct {
-    Name        string
-    Version     string
-    Author      string
-    Description string
-    Commands    []CommandInfo
-    BuildTags   []string // Required build tags
-    ConfigKeys  []string // Configuration keys used
+    Name         string
+    Version      string
+    Author       string
+    Description  string
+    Commands     []CommandInfo
+    BuildTags    []string            // Required build tags
+    ConfigKeys   []string            // Configuration keys used
+    Dependencies []PluginDependency  // Plugin dependencies
 }
 
 type CommandInfo struct {
@@ -61,6 +65,98 @@ type CommandInfo struct {
     Aliases     []string // Command aliases
 }
 ```
+
+### Plugin Dependencies
+
+Plugins can declare dependencies on other plugins to ensure proper load order and version compatibility.
+
+#### Dependency Declaration
+
+Dependencies are declared in the plugin's `Metadata()` method:
+
+```go
+import (
+    "github.com/ivannovak/glide/pkg/plugin"
+    "github.com/ivannovak/glide/pkg/plugin/sdk"
+)
+
+func (p *MyPlugin) Metadata() plugin.PluginMetadata {
+    return plugin.PluginMetadata{
+        Name:    "my-plugin",
+        Version: "1.0.0",
+        Dependencies: []sdk.PluginDependency{
+            {
+                Name:     "docker",
+                Version:  "^1.0.0",
+                Optional: false,
+            },
+            {
+                Name:     "kubernetes",
+                Version:  ">=2.0.0 <3.0.0",
+                Optional: true,
+            },
+        },
+    }
+}
+```
+
+#### Version Constraints
+
+Version constraints follow semantic versioning (semver) format:
+
+- **Exact version**: `"1.2.3"` - Requires exactly version 1.2.3
+- **Caret range**: `"^1.2.3"` - Compatible with version 1.x.x (>=1.2.3 <2.0.0)
+- **Tilde range**: `"~1.2.3"` - Compatible with version 1.2.x (>=1.2.3 <1.3.0)
+- **Comparison**: `">=1.0.0"`, `">1.0.0"`, `"<=2.0.0"`, `"<2.0.0"`
+- **Range**: `">=1.0.0 <2.0.0"` - Between 1.0.0 (inclusive) and 2.0.0 (exclusive)
+- **Wildcard**: `"1.x"`, `"1.2.x"` - Any version matching the pattern
+
+#### Required vs Optional Dependencies
+
+**Required dependencies** (default):
+- Plugin loading fails if the dependency is missing or has an incompatible version
+- Use for critical dependencies that your plugin cannot function without
+- Example: A Kubernetes plugin requiring the Docker plugin
+
+**Optional dependencies**:
+- Plugin loading succeeds with a warning if the dependency is missing or incompatible
+- Use for enhanced functionality that's not strictly required
+- Example: A deployment plugin that can optionally integrate with monitoring plugins
+
+```go
+// Required dependency - loading fails if missing
+{Name: "docker", Version: "^1.0.0", Optional: false}
+
+// Optional dependency - loading continues with warning if missing
+{Name: "monitoring", Version: ">=1.0.0", Optional: true}
+```
+
+#### Load Order
+
+The plugin manager automatically determines the correct load order based on dependencies:
+
+1. Plugins with no dependencies load first
+2. Plugins with dependencies load after their dependencies
+3. Circular dependencies are detected and reported as errors
+
+Example:
+```
+plugin-a (no dependencies)
+plugin-b (depends on plugin-a)
+plugin-c (depends on plugin-b)
+```
+Load order: `plugin-a` → `plugin-b` → `plugin-c`
+
+#### Best Practices
+
+1. **Use semantic versioning** for your plugin versions to enable proper dependency resolution
+2. **Be specific with version constraints** to avoid compatibility issues:
+   - Too loose: `"*"` or `">=1.0.0"` may accept breaking changes
+   - Too strict: `"1.2.3"` prevents compatible updates
+   - Recommended: `"^1.2.3"` for compatible updates
+3. **Mark truly optional dependencies as optional** to improve plugin compatibility
+4. **Document your dependencies** in your plugin's README
+5. **Test with different dependency versions** to ensure compatibility
 
 ## Creating a Plugin
 

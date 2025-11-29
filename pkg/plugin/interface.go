@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"github.com/ivannovak/glide/v2/pkg/plugin/sdk"
 	"github.com/spf13/cobra"
 )
 
@@ -114,14 +115,15 @@ type Plugin interface {
 
 // PluginMetadata describes a plugin
 type PluginMetadata struct {
-	Name        string
-	Version     string
-	Author      string
-	Description string
-	Aliases     []string // Plugin-level aliases
-	Commands    []CommandInfo
-	BuildTags   []string // Required build tags
-	ConfigKeys  []string // Configuration keys used
+	Name         string
+	Version      string
+	Author       string
+	Description  string
+	Aliases      []string // Plugin-level aliases
+	Commands     []CommandInfo
+	BuildTags    []string               // Required build tags
+	ConfigKeys   []string               // Configuration keys used
+	Dependencies []sdk.PluginDependency // Plugin dependencies
 }
 
 // CommandInfo describes a plugin command
