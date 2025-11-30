@@ -15,8 +15,9 @@ func TestContextDetectionBasic(t *testing.T) {
 	t.Run("detect_in_empty_directory", func(t *testing.T) {
 		// Setup: Create empty directory
 		tmpDir := t.TempDir()
-		originalWd, _ := os.Getwd()
-		defer os.Chdir(originalWd)
+		originalWd, err := os.Getwd()
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = os.Chdir(originalWd) })
 
 		require.NoError(t, os.Chdir(tmpDir))
 
@@ -39,8 +40,9 @@ func TestContextDetectionBasic(t *testing.T) {
 	t.Run("detect_in_git_repository", func(t *testing.T) {
 		// Setup: Create git repository
 		tmpDir := t.TempDir()
-		originalWd, _ := os.Getwd()
-		defer os.Chdir(originalWd)
+		originalWd, err := os.Getwd()
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = os.Chdir(originalWd) })
 
 		// Create .git directory
 		gitDir := filepath.Join(tmpDir, ".git")

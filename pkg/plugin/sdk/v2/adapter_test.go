@@ -40,17 +40,17 @@ func (p *MockV1InProcessPlugin) Register(root *cobra.Command) error {
 	return nil
 }
 
-func (p *MockV1InProcessPlugin) Init(ctx context.Context) error {
+func (p *MockV1InProcessPlugin) Init(_ context.Context) error {
 	p.initCalled = true
 	return nil
 }
 
-func (p *MockV1InProcessPlugin) Start(ctx context.Context) error {
+func (p *MockV1InProcessPlugin) Start(_ context.Context) error {
 	p.startCalled = true
 	return nil
 }
 
-func (p *MockV1InProcessPlugin) Stop(ctx context.Context) error {
+func (p *MockV1InProcessPlugin) Stop(_ context.Context) error {
 	p.stopCalled = true
 	return nil
 }
@@ -152,7 +152,9 @@ func TestV1Adapter_GetV1Plugin(t *testing.T) {
 		name: "v1-test",
 	}
 
-	adapter := AdaptV1InProcessPlugin(v1Plugin).(*V1Adapter)
+	v2Plugin := AdaptV1InProcessPlugin(v1Plugin)
+	adapter, ok := v2Plugin.(*V1Adapter)
+	require.True(t, ok, "expected *V1Adapter")
 
 	// Verify we can retrieve the original v1 plugin
 	original := adapter.GetV1Plugin()
@@ -252,7 +254,9 @@ func TestV1Adapter_StateTracking(t *testing.T) {
 		name: "v1-test",
 	}
 
-	adapter := AdaptV1InProcessPlugin(v1Plugin).(*V1Adapter)
+	v2Plugin := AdaptV1InProcessPlugin(v1Plugin)
+	adapter, ok := v2Plugin.(*V1Adapter)
+	require.True(t, ok, "expected *V1Adapter")
 	ctx := context.Background()
 
 	// Initial state should be uninitialized

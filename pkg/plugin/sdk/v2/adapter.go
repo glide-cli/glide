@@ -166,7 +166,7 @@ func (a *V1Adapter) Stop(ctx context.Context) error {
 }
 
 // HealthCheck delegates to v1 lifecycle if available.
-func (a *V1Adapter) HealthCheck(ctx context.Context) error {
+func (a *V1Adapter) HealthCheck(_ context.Context) error {
 	if lifecycle, ok := a.v1Plugin.(sdk.Lifecycle); ok {
 		return lifecycle.HealthCheck()
 	}
@@ -480,8 +480,16 @@ func (s *V2GRPCServer[C]) ExecuteCommand(ctx context.Context, req *v1.ExecuteReq
 	}
 
 	// Convert v2 response to v1
+	// Safely convert exit code to int32 (exit codes are typically 0-255)
+	exitCode := v2Resp.ExitCode
+	if exitCode > 127 {
+		exitCode = 127 // Cap at max positive int8 for shell compatibility
+	} else if exitCode < -128 {
+		exitCode = -128 // Cap at min int8
+	}
+
 	return &v1.ExecuteResponse{
-		ExitCode: int32(v2Resp.ExitCode),
+		ExitCode: int32(exitCode), //nolint:gosec // exit codes are bounded above
 		Stdout:   []byte(v2Resp.Output),
 		Error:    v2Resp.Error,
 	}, nil

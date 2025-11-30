@@ -141,7 +141,7 @@ func TestConfigMerging(t *testing.T) {
 		require.NoError(t, err)
 
 		configPath := filepath.Join(wd, ".test-config.yml")
-		defer os.Remove(configPath)
+		t.Cleanup(func() { _ = os.Remove(configPath) })
 
 		configContent := `
 commands:
@@ -167,7 +167,7 @@ commands:
 
 		// Base config (lower priority)
 		baseConfig := filepath.Join(wd, ".test-base.yml")
-		defer os.Remove(baseConfig)
+		t.Cleanup(func() { _ = os.Remove(baseConfig) })
 		baseContent := `
 commands:
   test:
@@ -179,7 +179,7 @@ commands:
 
 		// Override config (higher priority)
 		overrideConfig := filepath.Join(wd, ".test-override.yml")
-		defer os.Remove(overrideConfig)
+		t.Cleanup(func() { _ = os.Remove(overrideConfig) })
 		overrideContent := `
 commands:
   test:
@@ -205,7 +205,7 @@ commands:
 
 		// Valid config
 		validConfig := filepath.Join(wd, ".test-valid.yml")
-		defer os.Remove(validConfig)
+		t.Cleanup(func() { _ = os.Remove(validConfig) })
 		validContent := `
 commands:
   test:
@@ -215,7 +215,7 @@ commands:
 
 		// Invalid YAML
 		invalidConfig := filepath.Join(wd, ".test-invalid.yml")
-		defer os.Remove(invalidConfig)
+		t.Cleanup(func() { _ = os.Remove(invalidConfig) })
 		invalidContent := `
 commands:
   test:
@@ -239,7 +239,7 @@ commands:
 
 		// Valid config
 		validConfig := filepath.Join(wd, ".test-valid-2.yml")
-		defer os.Remove(validConfig)
+		t.Cleanup(func() { _ = os.Remove(validConfig) })
 		validContent := `
 commands:
   test:
@@ -302,7 +302,7 @@ version: 1
 		require.NoError(t, err)
 
 		configPath := filepath.Join(wd, ".test-commands.yml")
-		defer os.Remove(configPath)
+		t.Cleanup(func() { _ = os.Remove(configPath) })
 
 		configContent := `
 version: 1

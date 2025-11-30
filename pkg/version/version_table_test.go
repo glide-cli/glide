@@ -38,7 +38,7 @@ func TestGetVersionString_TableDriven(t *testing.T) {
 		},
 	}
 
-	testutil.RunSimpleTableTests(t, cases, nil, func(t *testing.T, versionInput string) string {
+	testutil.RunSimpleTableTests(t, cases, nil, func(_ *testing.T, versionInput string) string {
 		// Set the Version for this test case
 		Version = versionInput
 		return GetVersionString()
@@ -76,7 +76,7 @@ func TestGet_TableDriven(t *testing.T) {
 		},
 	}
 
-	testutil.RunSimpleTableTests(t, cases, nil, func(t *testing.T, versionInput string) string {
+	testutil.RunSimpleTableTests(t, cases, nil, func(_ *testing.T, versionInput string) string {
 		// Set the Version for this test case
 		Version = versionInput
 		return Get()

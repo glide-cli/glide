@@ -39,7 +39,7 @@ func NewTestPlugin() *TestPlugin {
 			Name:        "hello",
 			Description: "Say hello",
 			Category:    "test",
-			Handler: SimpleCommandHandler(func(ctx context.Context, req *ExecuteRequest) (*ExecuteResponse, error) {
+			Handler: SimpleCommandHandler(func(_ context.Context, _ *ExecuteRequest) (*ExecuteResponse, error) {
 				return &ExecuteResponse{
 					ExitCode: 0,
 					Output:   "Hello, World!",

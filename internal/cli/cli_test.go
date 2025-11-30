@@ -246,7 +246,7 @@ func TestCLIDependencyInjection(t *testing.T) {
 		assert.Equal(t, output.FormatJSON, cli.outputManager.GetFormat())
 
 		// Output should go to our buffer
-		cli.outputManager.Info("test message")
+		_ = cli.outputManager.Info("test message")
 		assert.Contains(t, buf.String(), "test message")
 	})
 

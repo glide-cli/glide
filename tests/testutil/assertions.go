@@ -83,7 +83,7 @@ func AssertNotNil(t TestingT, value interface{}, msg string) {
 }
 
 // AssertContains fails the test if the string doesn't contain the substring
-func AssertContains(t TestingT, haystack, needle string, msg string) {
+func AssertContains(t TestingT, haystack, needle, msg string) {
 	t.Helper()
 	if !strings.Contains(haystack, needle) {
 		t.Errorf("%s: expected string to contain %q, got: %s", msg, needle, haystack)
@@ -91,7 +91,7 @@ func AssertContains(t TestingT, haystack, needle string, msg string) {
 }
 
 // AssertNotContains fails the test if the string contains the substring
-func AssertNotContains(t TestingT, haystack, needle string, msg string) {
+func AssertNotContains(t TestingT, haystack, needle, msg string) {
 	t.Helper()
 	if strings.Contains(haystack, needle) {
 		t.Errorf("%s: expected string not to contain %q, got: %s", msg, needle, haystack)
@@ -99,7 +99,7 @@ func AssertNotContains(t TestingT, haystack, needle string, msg string) {
 }
 
 // AssertEmpty fails the test if the string is not empty
-func AssertEmpty(t TestingT, value string, msg string) {
+func AssertEmpty(t TestingT, value, msg string) {
 	t.Helper()
 	if value != "" {
 		t.Errorf("%s: expected empty string but got: %s", msg, value)
@@ -107,7 +107,7 @@ func AssertEmpty(t TestingT, value string, msg string) {
 }
 
 // AssertNotEmpty fails the test if the string is empty
-func AssertNotEmpty(t TestingT, value string, msg string) {
+func AssertNotEmpty(t TestingT, value, msg string) {
 	t.Helper()
 	if value == "" {
 		t.Errorf("%s: expected non-empty string", msg)
@@ -210,7 +210,7 @@ func FailNow(t *testing.T, format string, args ...interface{}) {
 }
 
 // AssertFileExists checks if a file exists at the given path
-func AssertFileExists(t TestingT, path string, msg string) {
+func AssertFileExists(t TestingT, _ string, msg string) {
 	t.Helper()
 	// This would require os package access, but keeping interface simple
 	// Implementation can be added by tests that need it

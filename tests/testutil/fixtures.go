@@ -204,7 +204,7 @@ func WithDefaultProject(name string) ConfigOption {
 }
 
 // WithProject adds a project configuration
-func WithProject(name string, path string, mode string) ConfigOption {
+func WithProject(name, path, mode string) ConfigOption {
 	return func(cfg *config.Config) {
 		if cfg.Projects == nil {
 			cfg.Projects = make(map[string]config.ProjectConfig)
@@ -218,7 +218,7 @@ func WithProject(name string, path string, mode string) ConfigOption {
 }
 
 // WithTestDefaults sets test defaults
-func WithTestDefaults(parallel bool, coverage bool) ConfigOption {
+func WithTestDefaults(parallel, coverage bool) ConfigOption {
 	return func(cfg *config.Config) {
 		cfg.Defaults.Test.Parallel = parallel
 		cfg.Defaults.Test.Coverage = coverage
@@ -226,7 +226,7 @@ func WithTestDefaults(parallel bool, coverage bool) ConfigOption {
 }
 
 // WithCommand adds a command to the config
-func WithCommand(name string, cmd string) ConfigOption {
+func WithCommand(name, cmd string) ConfigOption {
 	return func(cfg *config.Config) {
 		if cfg.Commands == nil {
 			cfg.Commands = make(config.CommandMap)
@@ -249,7 +249,7 @@ func TempDir(t TestingT) (string, func()) {
 	}
 
 	cleanup := func() {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 	}
 
 	return dir, cleanup

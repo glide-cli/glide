@@ -235,23 +235,23 @@ func (mc *MetricsCollector) GetTimingStats(name string) TimingStats {
 	}
 
 	var sum time.Duration
-	min := timings[0]
-	max := timings[0]
+	minTiming := timings[0]
+	maxTiming := timings[0]
 
 	for _, d := range timings {
 		sum += d
-		if d < min {
-			min = d
+		if d < minTiming {
+			minTiming = d
 		}
-		if d > max {
-			max = d
+		if d > maxTiming {
+			maxTiming = d
 		}
 	}
 
 	return TimingStats{
 		Count:   len(timings),
-		Min:     min,
-		Max:     max,
+		Min:     minTiming,
+		Max:     maxTiming,
 		Avg:     time.Duration(int64(sum) / int64(len(timings))),
 		Total:   sum,
 		Samples: len(timings),

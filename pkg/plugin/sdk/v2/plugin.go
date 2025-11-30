@@ -364,7 +364,7 @@ func (p *BasePlugin[C]) ConfigSchema() map[string]interface{} {
 
 // Configure stores the configuration.
 // Override this to perform configuration-dependent initialization.
-func (p *BasePlugin[C]) Configure(ctx context.Context, config C) error {
+func (p *BasePlugin[C]) Configure(_ context.Context, config C) error {
 	p.config = config
 	return nil
 }
@@ -376,25 +376,25 @@ func (p *BasePlugin[C]) Config() C {
 
 // Init performs no operation by default.
 // Override this to perform initialization.
-func (p *BasePlugin[C]) Init(ctx context.Context) error {
+func (p *BasePlugin[C]) Init(_ context.Context) error {
 	return nil
 }
 
 // Start performs no operation by default.
 // Override this to perform startup logic.
-func (p *BasePlugin[C]) Start(ctx context.Context) error {
+func (p *BasePlugin[C]) Start(_ context.Context) error {
 	return nil
 }
 
 // Stop performs no operation by default.
 // Override this to perform cleanup.
-func (p *BasePlugin[C]) Stop(ctx context.Context) error {
+func (p *BasePlugin[C]) Stop(_ context.Context) error {
 	return nil
 }
 
 // HealthCheck returns nil by default.
 // Override this to implement health checks.
-func (p *BasePlugin[C]) HealthCheck(ctx context.Context) error {
+func (p *BasePlugin[C]) HealthCheck(_ context.Context) error {
 	return nil
 }
 
@@ -541,72 +541,61 @@ func (a *CobraAdapter[C]) executeCommand(ctx context.Context, cmd Command, args 
 }
 
 func (a *CobraAdapter[C]) addFlag(cmd *cobra.Command, flag Flag) {
+	a.addFlagByType(cmd, flag)
+
+	if flag.Required {
+		_ = cmd.MarkFlagRequired(flag.Name)
+	}
+}
+
+// addFlagByType adds a flag to the command based on its type.
+// This is separated from addFlag to reduce cyclomatic complexity.
+func (a *CobraAdapter[C]) addFlagByType(cmd *cobra.Command, flag Flag) {
 	switch flag.Type {
 	case "string":
-		defaultValue := ""
-		if flag.Default != nil {
-			defaultValue = flag.Default.(string)
-		}
+		defaultValue := getTypedDefault(flag.Default, "")
 		if flag.Shorthand != "" {
 			cmd.Flags().StringP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
 		} else {
 			cmd.Flags().String(flag.Name, defaultValue, flag.Description)
 		}
 	case "bool":
-		defaultValue := false
-		if flag.Default != nil {
-			defaultValue = flag.Default.(bool)
-		}
+		defaultValue := getTypedDefault(flag.Default, false)
 		if flag.Shorthand != "" {
 			cmd.Flags().BoolP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
 		} else {
 			cmd.Flags().Bool(flag.Name, defaultValue, flag.Description)
 		}
 	case "int":
-		defaultValue := 0
-		if flag.Default != nil {
-			defaultValue = flag.Default.(int)
-		}
+		defaultValue := getTypedDefault(flag.Default, 0)
 		if flag.Shorthand != "" {
 			cmd.Flags().IntP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
 		} else {
 			cmd.Flags().Int(flag.Name, defaultValue, flag.Description)
 		}
 	case "stringSlice":
-		var defaultValue []string
-		if flag.Default != nil {
-			defaultValue = flag.Default.([]string)
-		}
+		defaultValue := getTypedDefault(flag.Default, []string(nil))
 		if flag.Shorthand != "" {
 			cmd.Flags().StringSliceP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
 		} else {
 			cmd.Flags().StringSlice(flag.Name, defaultValue, flag.Description)
 		}
 	case "intSlice":
-		var defaultValue []int
-		if flag.Default != nil {
-			defaultValue = flag.Default.([]int)
-		}
+		defaultValue := getTypedDefault(flag.Default, []int(nil))
 		if flag.Shorthand != "" {
 			cmd.Flags().IntSliceP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
 		} else {
 			cmd.Flags().IntSlice(flag.Name, defaultValue, flag.Description)
 		}
 	case "float64":
-		defaultValue := 0.0
-		if flag.Default != nil {
-			defaultValue = flag.Default.(float64)
-		}
+		defaultValue := getTypedDefault(flag.Default, 0.0)
 		if flag.Shorthand != "" {
 			cmd.Flags().Float64P(flag.Name, flag.Shorthand, defaultValue, flag.Description)
 		} else {
 			cmd.Flags().Float64(flag.Name, defaultValue, flag.Description)
 		}
 	case "duration":
-		var defaultValue time.Duration
-		if flag.Default != nil {
-			defaultValue = flag.Default.(time.Duration)
-		}
+		defaultValue := getTypedDefault(flag.Default, time.Duration(0))
 		if flag.Shorthand != "" {
 			cmd.Flags().DurationP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
 		} else {
@@ -624,10 +613,17 @@ func (a *CobraAdapter[C]) addFlag(cmd *cobra.Command, flag Flag) {
 			cmd.Flags().String(flag.Name, defaultValue, flag.Description)
 		}
 	}
+}
 
-	if flag.Required {
-		cmd.MarkFlagRequired(flag.Name)
+// getTypedDefault safely extracts a typed default value from an interface{}.
+func getTypedDefault[T any](value interface{}, fallback T) T {
+	if value == nil {
+		return fallback
 	}
+	if typed, ok := value.(T); ok {
+		return typed
+	}
+	return fallback
 }
 
 // CommandError represents a command execution error.

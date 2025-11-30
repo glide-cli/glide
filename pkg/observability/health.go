@@ -232,7 +232,7 @@ func (phc *PluginHealthChecker) Name() string {
 }
 
 // Check checks the plugin system health
-func (phc *PluginHealthChecker) Check(ctx context.Context) ComponentHealth {
+func (phc *PluginHealthChecker) Check(_ context.Context) ComponentHealth {
 	start := time.Now()
 	duration := time.Since(start)
 
@@ -253,7 +253,7 @@ type ConfigHealthChecker struct {
 }
 
 // NewConfigHealthChecker creates a config health checker
-func NewConfigHealthChecker(name string, configPath string) *ConfigHealthChecker {
+func NewConfigHealthChecker(name, configPath string) *ConfigHealthChecker {
 	return &ConfigHealthChecker{
 		name:       name,
 		configPath: configPath,
@@ -266,7 +266,7 @@ func (chc *ConfigHealthChecker) Name() string {
 }
 
 // Check checks the config system health
-func (chc *ConfigHealthChecker) Check(ctx context.Context) ComponentHealth {
+func (chc *ConfigHealthChecker) Check(_ context.Context) ComponentHealth {
 	start := time.Now()
 	duration := time.Since(start)
 

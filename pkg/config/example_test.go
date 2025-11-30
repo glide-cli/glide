@@ -47,11 +47,13 @@ func ExampleGet() {
 		Enabled bool   `json:"enabled"`
 	}
 
-	// Register
-	_ = config.Register("my-config", MyConfig{
+	// Register (error ignored for example brevity)
+	if err := config.Register("my-config", MyConfig{
 		Count:   5,
 		Enabled: true,
-	})
+	}); err != nil {
+		panic(err)
+	}
 
 	// Get TypedConfig wrapper
 	tc, err := config.Get[MyConfig]("my-config")
@@ -80,10 +82,12 @@ func ExampleUpdate() {
 	}
 
 	// Register with defaults
-	_ = config.Register("server", Config{
+	if err := config.Register("server", Config{
 		Host: "localhost",
 		Port: 8080,
-	})
+	}); err != nil {
+		panic(err)
+	}
 
 	// Update with new values
 	err := config.Update("server", map[string]interface{}{
@@ -95,7 +99,10 @@ func ExampleUpdate() {
 	}
 
 	// Retrieve updated config
-	cfg, _ := config.GetValue[Config]("server")
+	cfg, err := config.GetValue[Config]("server")
+	if err != nil {
+		panic(err)
+	}
 	fmt.Printf("Host: %s, Port: %d\n", cfg.Host, cfg.Port)
 
 	// Output:
