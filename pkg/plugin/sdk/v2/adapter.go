@@ -288,12 +288,17 @@ func (a *V1CommandAdapter) Execute(ctx context.Context, req *ExecuteRequest) (*E
 }
 
 // V1InteractiveCommandAdapter wraps a v1 interactive command handler.
+// Note: Interactive command adaptation between v1 (bidirectional streaming) and v2 (session-based)
+// is not supported. V1 plugins with interactive commands should remain as v1 plugins or be
+// rewritten natively in v2.
 type V1InteractiveCommandAdapter struct {
 	v1Plugin v1.GlidePluginClient
 	command  string
 }
 
 // NewV1InteractiveCommandAdapter creates an adapter for a v1 interactive command.
+// Note: This adapter does not support interactive execution. Use V1CommandAdapter for
+// non-interactive commands, or keep interactive plugins as v1.
 func NewV1InteractiveCommandAdapter(v1Plugin v1.GlidePluginClient, command string) InteractiveCommandHandler {
 	return &V1InteractiveCommandAdapter{
 		v1Plugin: v1Plugin,
@@ -301,11 +306,12 @@ func NewV1InteractiveCommandAdapter(v1Plugin v1.GlidePluginClient, command strin
 	}
 }
 
-// ExecuteInteractive adapts v2 interactive session to v1 streaming.
+// ExecuteInteractive is not supported for v1 adapted plugins.
+// V1 plugins use bidirectional gRPC streaming for interactive commands, which is architecturally
+// incompatible with the v2 session-based InteractiveSession interface. Interactive v1 plugins
+// should either remain as v1 or be rewritten natively in v2.
 func (a *V1InteractiveCommandAdapter) ExecuteInteractive(ctx context.Context, session *InteractiveSession) error {
-	// TODO: Implement v1 streaming → v2 session adapter
-	// This requires bridging the v1 bidirectional streaming to the v2 InteractiveSession
-	return fmt.Errorf("v1 interactive command adaptation not yet implemented")
+	return fmt.Errorf("interactive command adaptation from v1 to v2 is not supported: v1 plugin %q command %q uses bidirectional streaming which cannot be adapted to v2 session interface; keep this plugin as v1 or rewrite it natively in v2", a.v1Plugin, a.command)
 }
 
 // V2ToV1Adapter wraps a v2 plugin to implement v1 interfaces.

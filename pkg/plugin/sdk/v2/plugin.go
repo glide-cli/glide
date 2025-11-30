@@ -11,6 +11,9 @@ package v2
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -470,27 +473,54 @@ func (a *CobraAdapter[C]) BuildCommands() []*cobra.Command {
 }
 
 func (a *CobraAdapter[C]) executeCommand(ctx context.Context, cmd Command, args []string, cobraCmd *cobra.Command) error {
+	// Get working directory
+	workingDir, err := os.Getwd()
+	if err != nil {
+		workingDir = "."
+	}
+
 	// Build execute request
 	req := &ExecuteRequest{
 		Command:    cmd.Name,
 		Args:       args,
 		Flags:      make(map[string]interface{}),
 		Env:        make(map[string]string),
-		WorkingDir: ".", // TODO: Get from context
+		WorkingDir: workingDir,
 	}
 
-	// Extract flags
+	// Extract flags based on their declared types
 	for _, flag := range cmd.Flags {
 		if cobraCmd.Flags().Changed(flag.Name) {
-			value, _ := cobraCmd.Flags().GetString(flag.Name) // TODO: Handle different types
-			req.Flags[flag.Name] = value
+			var value interface{}
+			var flagErr error
+			switch flag.Type {
+			case "string":
+				value, flagErr = cobraCmd.Flags().GetString(flag.Name)
+			case "bool":
+				value, flagErr = cobraCmd.Flags().GetBool(flag.Name)
+			case "int":
+				value, flagErr = cobraCmd.Flags().GetInt(flag.Name)
+			case "stringSlice":
+				value, flagErr = cobraCmd.Flags().GetStringSlice(flag.Name)
+			case "intSlice":
+				value, flagErr = cobraCmd.Flags().GetIntSlice(flag.Name)
+			case "float64":
+				value, flagErr = cobraCmd.Flags().GetFloat64(flag.Name)
+			case "duration":
+				value, flagErr = cobraCmd.Flags().GetDuration(flag.Name)
+			default:
+				// Default to string for unknown types
+				value, flagErr = cobraCmd.Flags().GetString(flag.Name)
+			}
+			if flagErr == nil {
+				req.Flags[flag.Name] = value
+			}
 		}
 	}
 
-	// Execute command
+	// Interactive commands require InteractiveHandler
 	if cmd.Interactive && cmd.InteractiveHandler != nil {
-		// TODO: Create InteractiveSession and call InteractiveHandler
-		return nil
+		return fmt.Errorf("interactive commands are not supported via CobraAdapter; use gRPC plugin mode for interactive commands")
 	}
 
 	if cmd.Handler != nil {
@@ -542,7 +572,57 @@ func (a *CobraAdapter[C]) addFlag(cmd *cobra.Command, flag Flag) {
 		} else {
 			cmd.Flags().Int(flag.Name, defaultValue, flag.Description)
 		}
-		// TODO: Add more types as needed
+	case "stringSlice":
+		var defaultValue []string
+		if flag.Default != nil {
+			defaultValue = flag.Default.([]string)
+		}
+		if flag.Shorthand != "" {
+			cmd.Flags().StringSliceP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
+		} else {
+			cmd.Flags().StringSlice(flag.Name, defaultValue, flag.Description)
+		}
+	case "intSlice":
+		var defaultValue []int
+		if flag.Default != nil {
+			defaultValue = flag.Default.([]int)
+		}
+		if flag.Shorthand != "" {
+			cmd.Flags().IntSliceP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
+		} else {
+			cmd.Flags().IntSlice(flag.Name, defaultValue, flag.Description)
+		}
+	case "float64":
+		defaultValue := 0.0
+		if flag.Default != nil {
+			defaultValue = flag.Default.(float64)
+		}
+		if flag.Shorthand != "" {
+			cmd.Flags().Float64P(flag.Name, flag.Shorthand, defaultValue, flag.Description)
+		} else {
+			cmd.Flags().Float64(flag.Name, defaultValue, flag.Description)
+		}
+	case "duration":
+		var defaultValue time.Duration
+		if flag.Default != nil {
+			defaultValue = flag.Default.(time.Duration)
+		}
+		if flag.Shorthand != "" {
+			cmd.Flags().DurationP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
+		} else {
+			cmd.Flags().Duration(flag.Name, defaultValue, flag.Description)
+		}
+	default:
+		// Default to string for unknown types
+		defaultValue := ""
+		if flag.Default != nil {
+			defaultValue = fmt.Sprintf("%v", flag.Default)
+		}
+		if flag.Shorthand != "" {
+			cmd.Flags().StringP(flag.Name, flag.Shorthand, defaultValue, flag.Description)
+		} else {
+			cmd.Flags().String(flag.Name, defaultValue, flag.Description)
+		}
 	}
 
 	if flag.Required {
