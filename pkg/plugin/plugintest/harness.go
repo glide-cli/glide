@@ -34,6 +34,8 @@ func NewTestHarness(t *testing.T) *TestHarness {
 }
 
 // RegisterPlugin registers a plugin in the test harness
+//
+//nolint:staticcheck // SA1019: plugin.Plugin is deprecated but still valid for use
 func (h *TestHarness) RegisterPlugin(p plugin.Plugin) error {
 	err := h.Registry.RegisterPlugin(p)
 	if err != nil {
@@ -132,6 +134,8 @@ func (h *TestHarness) LoadAllPlugins() (*plugin.PluginLoadResult, error) {
 }
 
 // ListPlugins returns all registered plugins
+//
+//nolint:staticcheck // SA1019: plugin.Plugin is deprecated but still valid for use
 func (h *TestHarness) ListPlugins() []plugin.Plugin {
 	return h.Registry.List()
 }

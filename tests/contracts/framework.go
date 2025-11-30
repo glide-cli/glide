@@ -7,7 +7,6 @@
 package contracts
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -458,7 +457,7 @@ func findSubstring(s, substr string) bool {
 //
 // This is not a real test, but serves as executable documentation.
 func ImplementationExample() string {
-	return fmt.Sprintf(`
+	return `
 // Example: Testing a Plugin interface contract
 
 type Plugin interface {
@@ -497,5 +496,5 @@ func TestPluginContract(t *testing.T) {
 
     VerifyInterfaceContract(t, contract)
 }
-`)
+`
 }

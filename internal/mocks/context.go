@@ -11,18 +11,24 @@ type ContextDetector struct {
 }
 
 // Detect mocks the Detect method
+//
+//nolint:staticcheck // SA1019: interfaces.ProjectContext is deprecated but still in use until v3.0.0
 func (m *ContextDetector) Detect(workingDir string) (interfaces.ProjectContext, error) {
 	args := m.Called(workingDir)
 	if result := args.Get(0); result != nil {
+		//nolint:staticcheck // SA1019: interfaces.ProjectContext is deprecated but still in use until v3.0.0
 		return result.(interfaces.ProjectContext), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
 
 // DetectWithRoot mocks the DetectWithRoot method
+//
+//nolint:staticcheck // SA1019: interfaces.ProjectContext is deprecated but still in use until v3.0.0
 func (m *ContextDetector) DetectWithRoot(workingDir, projectRoot string) (interfaces.ProjectContext, error) {
 	args := m.Called(workingDir, projectRoot)
 	if result := args.Get(0); result != nil {
+		//nolint:staticcheck // SA1019: interfaces.ProjectContext is deprecated but still in use until v3.0.0
 		return result.(interfaces.ProjectContext), args.Error(1)
 	}
 	return nil, args.Error(1)

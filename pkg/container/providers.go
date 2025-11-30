@@ -80,8 +80,9 @@ type ProjectContextParams struct {
 	fx.In
 
 	Detector *context.Detector
-	Plugins  []*plugin.Plugin `optional:"true"` // Get all registered plugins
-	Logger   *logging.Logger
+	//nolint:staticcheck // SA1019: plugin.Plugin is deprecated but still valid for use
+	Plugins []*plugin.Plugin `optional:"true"` // Get all registered plugins
+	Logger  *logging.Logger
 }
 
 // provideProjectContext detects the project context.
