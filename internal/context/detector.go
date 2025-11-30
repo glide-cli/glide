@@ -16,6 +16,8 @@ type Detector struct {
 	locationIdentifier LocationIdentifier
 	composeResolver    ComposeFileResolver
 	extensionRegistry  ExtensionRegistry
+	skipDockerCheck    bool // Skip expensive Docker daemon check
+	lazyDockerCheck    bool // Check Docker status lazily on first use
 }
 
 // ExtensionRegistry interface for plugin-provided context extensions
@@ -36,6 +38,25 @@ func NewDetector() (*Detector, error) {
 		modeDetector:       NewStandardDevelopmentModeDetector(),
 		locationIdentifier: NewStandardLocationIdentifier(),
 		composeResolver:    NewStandardComposeFileResolver(),
+		lazyDockerCheck:    true, // Default to lazy Docker checks for startup performance
+	}, nil
+}
+
+// NewDetectorFast creates a detector optimized for fast startup
+// Skips expensive Docker daemon checks - use for startup and non-Docker commands
+func NewDetectorFast() (*Detector, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get working directory: %w", err)
+	}
+
+	return &Detector{
+		workingDir:         wd,
+		rootFinder:         NewStandardProjectRootFinder(),
+		modeDetector:       NewStandardDevelopmentModeDetector(),
+		locationIdentifier: NewStandardLocationIdentifier(),
+		composeResolver:    NewStandardComposeFileResolver(),
+		skipDockerCheck:    true,
 	}, nil
 }
 
@@ -133,9 +154,14 @@ func (d *Detector) Detect() (*ProjectContext, error) {
 	}
 
 	// Check Docker daemon status (legacy fallback)
-	if !ctx.DockerRunning {
+	// Skip if explicitly disabled or using lazy check
+	if !ctx.DockerRunning && !d.skipDockerCheck && !d.lazyDockerCheck {
 		d.checkDockerStatus(ctx)
 		logging.Debug("Docker status checked", "running", ctx.DockerRunning)
+	} else if d.lazyDockerCheck {
+		// Mark for lazy checking - Docker status will be checked on first use
+		ctx.Extensions["_dockerCheckDeferred"] = true
+		logging.Debug("Docker status check deferred for lazy loading")
 	}
 
 	// Update extensions from compatibility fields
@@ -156,6 +182,22 @@ func (d *Detector) checkDockerStatus(ctx *ProjectContext) {
 		}
 	} else {
 		ctx.DockerRunning = false
+	}
+}
+
+// EnsureDockerStatus checks Docker status if not already checked
+// Use this method when Docker status is actually needed
+func (d *Detector) EnsureDockerStatus(ctx *ProjectContext) {
+	// Check if already checked
+	if ctx.DockerRunning {
+		return
+	}
+
+	// Check if was marked as deferred
+	if _, ok := ctx.Extensions["_dockerCheckDeferred"]; ok {
+		d.checkDockerStatus(ctx)
+		delete(ctx.Extensions, "_dockerCheckDeferred")
+		logging.Debug("Docker status lazy checked", "running", ctx.DockerRunning)
 	}
 }
 

@@ -172,8 +172,10 @@ func isWithinBase(path, baseDir string) bool {
 			for d := pathDir; d != "/" && d != "."; d = filepath.Dir(d) {
 				if evalDir, err := filepath.EvalSymlinks(d); err == nil {
 					// Found a directory we can resolve, reconstruct the path
-					remaining, _ := filepath.Rel(d, absPath)
-					absPath = filepath.Join(evalDir, remaining)
+					remaining, relErr := filepath.Rel(d, absPath)
+					if relErr == nil {
+						absPath = filepath.Join(evalDir, remaining)
+					}
 					break
 				}
 			}

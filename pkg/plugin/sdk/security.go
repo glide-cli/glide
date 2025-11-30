@@ -7,7 +7,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"syscall"
 )
 
 // SecurityValidator validates plugin security and integrity
@@ -80,9 +82,10 @@ func (sv *SecurityValidator) validateFileSystem(pluginPath string) error {
 		return fmt.Errorf("plugin file is writable by group or others (security risk)")
 	}
 
-	// Plugin should be owned by current user or root
-	// This is Unix-specific and would need adaptation for Windows
-	// TODO: Add proper ownership checks
+	// Plugin should be owned by current user or root (Unix-specific)
+	if err := sv.validateOwnership(info); err != nil {
+		return err
+	}
 
 	// Plugin should not be in world-writable directories
 	dir := filepath.Dir(pluginPath)
@@ -93,6 +96,31 @@ func (sv *SecurityValidator) validateFileSystem(pluginPath string) error {
 
 	if dirInfo.Mode()&0002 != 0 {
 		return fmt.Errorf("plugin is in world-writable directory (security risk)")
+	}
+
+	return nil
+}
+
+// validateOwnership checks file ownership (Unix-specific)
+func (sv *SecurityValidator) validateOwnership(info os.FileInfo) error {
+	// Skip ownership checks on Windows
+	if runtime.GOOS == "windows" {
+		return nil
+	}
+
+	// Get the underlying syscall.Stat_t
+	stat, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		// If we can't get syscall info, skip this check
+		return nil
+	}
+
+	// Get current user's UID
+	currentUID := uint32(os.Getuid())
+
+	// Plugin must be owned by current user or root (UID 0)
+	if stat.Uid != currentUID && stat.Uid != 0 {
+		return fmt.Errorf("plugin file is owned by UID %d, expected current user (%d) or root (0)", stat.Uid, currentUID)
 	}
 
 	return nil
