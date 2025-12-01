@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/ivannovak/glide/compare/v3.1.0...v3.1.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* add missing spaces in command examples ([#22](https://github.com/ivannovak/glide/issues/22)) ([ae61e59](https://github.com/ivannovak/glide/commit/ae61e590aca156e7f59b284d05d1cee63406d57d))
+
 ## [3.1.0](https://github.com/ivannovak/glide/compare/v3.0.1...v3.1.0) (2025-12-01)
 
 
