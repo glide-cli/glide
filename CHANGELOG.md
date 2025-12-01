@@ -1,3 +1,10 @@
+## [3.1.0](https://github.com/ivannovak/glide/compare/v3.0.1...v3.1.0) (2025-12-01)
+
+
+### Features
+
+* **update:** add proactive update notification system ([#21](https://github.com/ivannovak/glide/issues/21)) ([d03f41b](https://github.com/ivannovak/glide/commit/d03f41b078503589cdc811fb36450ea2bc0ec3cd))
+
 ## [3.0.1](https://github.com/ivannovak/glide/compare/v3.0.0...v3.0.1) (2025-12-01)
 
 
