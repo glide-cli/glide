@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/ivannovak/glide/compare/v3.0.0...v3.0.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* post-v3 release fixes ([#20](https://github.com/ivannovak/glide/issues/20)) ([58d1297](https://github.com/ivannovak/glide/commit/58d129770ff05bdba755a9ad528b6b2c980ff77e))
+
 ## [3.0.0](https://github.com/ivannovak/glide/compare/v2.3.0...v3.0.0) (2025-11-30)
 
 
