@@ -91,8 +91,8 @@ func TestNotificationManager_StatePeristence(t *testing.T) {
 		state:          &UpdateState{},
 	}
 
-	// Set some state
-	checkTime := time.Now().Truncate(time.Second)
+	// Set some state - use UTC for consistent JSON round-trip
+	checkTime := time.Now().UTC().Truncate(time.Second)
 	nm.state.LastCheckTime = checkTime
 	nm.state.LatestVersion = "2.0.0"
 	nm.state.LatestVersionInfo = &UpdateInfo{
@@ -257,7 +257,7 @@ func TestNotificationManager_CheckForUpdateAsync(t *testing.T) {
 
 func TestUpdateState_JSON(t *testing.T) {
 	state := &UpdateState{
-		LastCheckTime:       time.Now().Truncate(time.Second),
+		LastCheckTime:       time.Now().UTC().Truncate(time.Second),
 		LatestVersion:       "2.0.0",
 		LastNotifiedVersion: "1.5.0",
 		LatestVersionInfo: &UpdateInfo{
