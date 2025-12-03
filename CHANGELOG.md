@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/ivannovak/glide/compare/v4.0.0...v4.0.1) (2025-12-03)
+
+
+### Bug Fixes
+
+* **plugins:** use consistent naming for installed plugins ([#24](https://github.com/ivannovak/glide/issues/24)) ([9f660c6](https://github.com/ivannovak/glide/commit/9f660c65d1c132948b622acdb09212d964733d0b))
+
 ## [4.0.0](https://github.com/ivannovak/glide/compare/v3.1.1...v4.0.0) (2025-12-03)
 
 
