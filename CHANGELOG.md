@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/ivannovak/glide/compare/v4.0.1...v4.0.2) (2025-12-03)
+
+
+### Bug Fixes
+
+* **ci:** use go-version-file to respect toolchain directive ([#25](https://github.com/ivannovak/glide/issues/25)) ([f8f0440](https://github.com/ivannovak/glide/commit/f8f0440fa310ea12b93cc19b846f8193f5f22823))
+
 ## [4.0.1](https://github.com/ivannovak/glide/compare/v4.0.0...v4.0.1) (2025-12-03)
 
 
